@@ -1,0 +1,94 @@
+%%%
+% Mitography - TFAM analysis
+% Analysing number of nucleoids in mitochondria, based on TFAM and
+% OMM-staining.
+%----------------------------
+% Version: 191203
+% Last updated features: New script
+%
+% @jonatanalvelid
+%%%
+
+clear
+
+% Add function folder to filepath, so that those functions can be read.
+functionFolder = fileparts(which('findFunctionFolders.m'));
+addpath(genpath(functionFolder));
+
+masterFolderPath = strcat(uigetdir('X:\Mitography'),'\');
+fileList = dir(fullfile(masterFolderPath, 'Image_*.txt'));
+for i = 1:length(fileList)
+    filenumbers(i) = str2num(fileList(i).name(7:9));
+end
+lastFileNumber = max(filenumbers);
+
+mitosPerFile = 1000;
+mitoSingleGaussTol = 0.98;
+mitoDoubleGaussTol = 0.92;
+mitoDoubleGaussTol2 = 0.7;
+actinSingleGaussTol = 0.96;
+actinDoubleGaussTol = 0.96;
+actinGaussMinDistance = 0.100;
+gaussianFitting = 1;
+threshsize = 8;  % Lower threshold size in pixels for binary mitochondria
+
+filenameallPxs = '_PixelSizes.txt';
+filenameallMito = '_MitoAnalysis.txt';
+filenamenucleoids = '_Nucleoids.txt';
+filenameAnalysisSave = '_MitoAnalysisFull.txt';
+filenameMitoBinary = '_MitoBinary.tif';
+fileNumbers = 1:lastFileNumber;
+
+for fileNum = 6
+    filepathpxs = strFilepath(fileNum,filenameallPxs,masterFolderPath);
+    filepathmito = strFilepath(fileNum,filenameallMito,masterFolderPath);
+    filepathnucleoids = strFilepath(fileNum,filenamenucleoids,masterFolderPath);
+    filepathMitoBinary = strFilepath(fileNum,filenameMitoBinary,masterFolderPath);
+    filepathAnaSave = strFilepath(fileNum,filenameAnalysisSave,masterFolderPath);
+    
+    try
+        % Read the mito and line profile data
+        datamito = dlmread(filepathmito,'',1,1);
+        datanucleoids = dlmread(filepathnucleoids,'',1,1);
+        [mitos,params] = size(datamito);
+        
+        % Read the pixel size (in nm)
+        datapxs = dlmread(filepathpxs,'',1,1);
+        pixelsize = datapxs(1,1)/1000;
+        
+        % Load binary mitochondria image 
+        imagemitobinary = imread(filepathMitoBinary);
+        
+        % Make binary nucleoid center map 
+        nucleoidmap = zeros(size(imagemitobinary));
+        for i = 1:length(datanucleoids)
+            xpos = datanucleoids(i,2);
+            xpos = round(xpos/pixelsize);
+            ypos = datanucleoids(i,3);
+            ypos = round(ypos/pixelsize);
+            % Make sure all coordinates ar
+            if xpos
+            nucleoidmap(ypos,xpos) = 1;
+        end
+        
+        % Remove small objects and make labelled binary mitochondria image
+        imagemitobinary = bwareaopen(imagemitobinary, threshsize);
+        [labelmito, num] = bwlabel(imagemitobinary');
+        labelmito = labelmito';
+        
+        % Get number of nucleoids in each mito and save to mitoinfo
+        for i = 1:num
+            singlemitobinary = ismember(labelmito, i);
+            singlemitonucleoids = nucleoidmap.*singlemitobinary;
+            datamito(i,params+1) = sum(sum(singlemitonucleoids));
+        end
+        
+        % Save data
+        disp(strcat(num2str(fileNum),': Done.'))
+%         dlmwrite(filepathAnaSave,datamito,'delimiter','\t');
+        writematrix(datamito,filepathAnaSave,'Delimiter','tab')
+    catch err
+        disp(strcat(num2str(fileNum),': General error.'));
+    end 
+    
+end
