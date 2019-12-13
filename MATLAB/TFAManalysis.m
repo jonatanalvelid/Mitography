@@ -125,6 +125,8 @@ for fileNum = fileNumbers
             ypos = min(max(ypos,1),imsize(1));
             datamito(i,params+2) = aisdist(ypos,xpos) * pixelsize;
         end
+        % Round the distances to three decimals
+        datamito(:,8) = round(datamito(:,8),3);
         
         % Get number of nucleoids in each mito and save to mitoinfo
         for i = 1:num
