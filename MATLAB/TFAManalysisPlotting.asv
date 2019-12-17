@@ -1,0 +1,99 @@
+%%%
+% Mitography - TFAM analysis - data plotting
+% Plotting the data from the TFAM analysis.
+%----------------------------
+% Version: 191217
+% Last updated features: New script
+%
+% @jonatanalvelid
+%%%
+
+clear
+
+% Add function folder to filepath, so that those functions can be read.
+functionFolder = fileparts(which('findFunctionFolders.m'));
+addpath(genpath(functionFolder));
+
+masterFolderPath = strcat(uigetdir('X:\Mitography'),'\');
+fileList = dir(fullfile(masterFolderPath, 'Image_*.txt'));
+for i = 1:length(fileList)
+    filenumbers(i) = str2num(fileList(i).name(7:9));
+end
+lastFileNumber = max(filenumbers);
+
+somadist = [];
+numnucl = [];
+
+filenameallMito = '_MitoAnalysisFull.txt';
+fileNumbers = 1:lastFileNumber;
+
+for fileNum = fileNumbers
+    filepathmito = strFilepath(fileNum,filenameallMito,masterFolderPath);
+    
+    try
+        % Read the mito and line profile data
+        datamito = dlmread(filepathmito,'',0,0);
+        [num,params] = size(datamito);
+        
+        % Get somadist and number of nucleotides for all mito in image
+        somadisttemp = datamito(:,params-1);
+        numnucltemp = datamito(:,params);
+        
+        % Add to list of all mitochondria in all images
+        somadist = vertcat(somadist,somadisttemp);
+        numnucl = vertcat(numnucl,numnucltemp);
+        
+    catch err
+        disp(strcat(num2str(fileNum),': General error.'));
+    end 
+    
+end
+
+scatter(somadist,numnucl)
+xlabel('Distance to soma [µm]')
+ylabel('# of nucleotides/mito')
+
+
+%%% VARIABLES TO MODIFY AND PLOT
+h1var = mitolengthGT4NS_C;
+h2var = mitolengthGT4NS_Gal;
+stepwidth1 = 0.021;  % Bin width for the first variables plotted (mito width)
+ylimup1 = 0.25;  % Upper y-axis bound for first variable plotted (in case you do not see the whole bins etc)
+
+%%% PLOTTING CODE
+colors = lines(2);
+gray = [0.6 0.6 0.6];
+lightGray = [0.7 0.7 0.7];
+darkGray = [0.3 0.3 0.3];
+
+boundlow1 = 0;
+boundup1 = 0.7;
+xlimlow1 = boundlow1;
+xlimup1 = boundup1;
+
+fontsize = 12;
+opacity = 0.5;
+
+legendtext1 = 'STED';
+legendtext2 = 'Confocal';
+
+xlabeltext1 = 'Mitochondria width [?m]';
+
+
+%%%,'FaceAlpha',opacity %%% If you want different opacity
+T = figure('rend','painters','pos',[100 100 300 300]);
+h1 = histogram(h1var,boundlow1:stepwidth1:boundup1,'Normalization','probability','FaceColor',colors(1,1:end));
+hold on
+h2 = histogram(h2var,boundlow1:stepwidth1:boundup1,'Normalization','probability','FaceColor',darkGray);
+xlim([xlimlow1 xlimup1])
+xlabel(xlabeltext1)
+ylim([0 ylimup1])
+ylabel('Norm. frequency')
+%title(strcat(titletext1,', N=',num2str(length(h1var))));
+legend(legendtext1,legendtext2);
+set(gca,'FontSize',fontsize)
+set(gca,'TickDir','out');
+xticks([xlimlow1:(xlimup1-xlimlow1)/12:xlimup1])
+xticklabels({xlimlow1,'','',(xlimup1-xlimlow1)/4,'','',(xlimup1-xlimlow1)/2,'','',3*(xlimup1-xlimlow1)/4,'','',xlimup1})
+yticks([0:ylimup1/12:ylimup1])
+yticklabels({0,'','',ylimup1/4,'','',ylimup1/2,'','',3*ylimup1/4,'','',ylimup1})

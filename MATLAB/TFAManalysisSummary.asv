@@ -1,0 +1,19 @@
+%%%
+% Mitography - TFAM analysis - summarize data
+% Summarize the data and group based on axon distance.
+%----------------------------
+% Version: 191217
+% Last updated features: New script
+%
+% @jonatanalvelid
+%%%
+
+AxonDistance = mitodata(:,1);
+NumNucleotides = mitodata(:,2);
+AxonDistGroup = ceil(AxonDistance/30)*30;
+AxonDistGroup(AxonDistGroup>300) = 300;  % The group for all distant mitos
+
+mitodatatable = table(AxonDistance,AxonDistGroup,NumNucleotides);
+
+stats = grpstats(mitodatatable,'AxonDistGroup');
+

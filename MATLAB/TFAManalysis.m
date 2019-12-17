@@ -22,14 +22,6 @@ for i = 1:length(fileList)
 end
 lastFileNumber = max(filenumbers);
 
-mitosPerFile = 1000;
-mitoSingleGaussTol = 0.98;
-mitoDoubleGaussTol = 0.92;
-mitoDoubleGaussTol2 = 0.7;
-actinSingleGaussTol = 0.96;
-actinDoubleGaussTol = 0.96;
-actinGaussMinDistance = 0.100;
-gaussianFitting = 1;
 threshsize = 8;  % Lower threshold size in pixels for binary mitochondria
 
 filenameallPxs = '_PixelSizes.txt';
