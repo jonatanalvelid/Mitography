@@ -14,7 +14,7 @@
 functionFolder = fileparts(which('findFunctionFolders.m'));
 addpath(genpath(functionFolder));
 
-masterFolderPath = strcat(uigetdir('X:\Mitography'),'\');
+masterFolderPath = strcat(uigetdir('T:\Mitography'),'\');
 fileList = dir(fullfile(masterFolderPath, 'Image_*.txt'));
 filenumbers = [];
 for i = 1:length(fileList)
@@ -74,7 +74,7 @@ fontsize = 14;
 opacity = 0.5;
 
 ylabeltext1 = '# of nucleotides/mito';
-xlabeltext1 = 'Distance to soma [µm]';
+xlabeltext1 = 'Distance to soma [?m]';
 
 TFAMfig = figure('rend','painters','pos',[100 100 800 400]);
 h1 = scatter(mitodata(:,1),mitodata(:,2));

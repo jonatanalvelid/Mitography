@@ -16,33 +16,29 @@ functionFolder = fileparts(which('findFunctionFolders.m'));
 addpath(genpath(functionFolder));
 
 masterFolderPath = strcat(uigetdir('T:\Mitography'),'\');
-fileList = dir(fullfile(masterFolderPath, 'Image_*.txt'));
+fileList = dir(fullfile(masterFolderPath, 'Image*.txt'));
 for i = 1:length(fileList)
-    filenumbers(i) = str2num(fileList(i).name(7:9));
+    filenumbers(i) = str2num(fileList(i).name(6:8));
 end
 lastFileNumber = max(filenumbers);
 
-threshsize = 8;  % Lower threshold size in pixels for binary mitochondria
-
-filenameallPxs = '_PixelSizes.txt';
-filenameallMito = '_MitoAnalysis.txt';
-filenamenucleoids = '_Nucleoids.txt';
-filenameAnalysisSave = '_MitoAnalysisFull.txt';
-filenameMitoBinary = '_MitoBinary.tif';
-filenameSomaBinary = '-SomaBinary.tif';
-filenameAISBinary = '_AISBinary.tif';
-filenameAxonDistInfo = '_AxonDistInfo.txt';
+filenameallPxs = '-_PixelSizes.txt';
+filenameallMito = '-_MitoAnalysis.txt';
+filenamenucleoids = '-_Nucleoids.txt';
+filenameAnalysisSave = '-_MitoAnalysisFull.txt';
+filenameMitoBinary = '-_MitoBinary.tif';
+filenameSomaBinary = '-_SomaBinary.tif';
+filenameAISBinary = '-_AISBinary.tif';
 fileNumbers = 1:lastFileNumber;
 
 for fileNum = fileNumbers
-    filepathpxs = strFilepath(fileNum,filenameallPxs,masterFolderPath);
-    filepathmito = strFilepath(fileNum,filenameallMito,masterFolderPath);
-    filepathnucleoids = strFilepath(fileNum,filenamenucleoids,masterFolderPath);
-    filepathMitoBinary = strFilepath(fileNum,filenameMitoBinary,masterFolderPath);
-    filepathAnaSave = strFilepath(fileNum,filenameAnalysisSave,masterFolderPath);
-    filepathSomaBinary = strFilepath(fileNum,filenameSomaBinary,masterFolderPath);
-    filepathAISBinary = strFilepath(fileNum,filenameAISBinary,masterFolderPath);
-    filepathAxonDistInfo = strFilepath(fileNum,filenameAxonDistInfo,masterFolderPath);
+    filepathpxs = strFilepathNucl(fileNum,filenameallPxs,masterFolderPath);
+    filepathmito = strFilepathNucl(fileNum,filenameallMito,masterFolderPath);
+    filepathnucleoids = strFilepathNucl(fileNum,filenamenucleoids,masterFolderPath);
+    filepathMitoBinary = strFilepathNucl(fileNum,filenameMitoBinary,masterFolderPath);
+    filepathAnaSave = strFilepathNucl(fileNum,filenameAnalysisSave,masterFolderPath);
+    filepathSomaBinary = strFilepathNucl(fileNum,filenameSomaBinary,masterFolderPath);
+    filepathAISBinary = strFilepathNucl(fileNum,filenameAISBinary,masterFolderPath);
     
     try
         % Read the mito and line profile data
@@ -52,14 +48,14 @@ for fileNum = fileNumbers
         
         % Read the pixel size (in nm)
         datapxs = dlmread(filepathpxs,'',1,1);
-        pixelsize = datapxs(1,1)/1000;
+        pixelsize = datapxs(1,1);
         
         % Load binary mitochondria image 
-        imagemitobinary = imread(filepathMitoBinary);
-        imsize = size(imagemitobinary);
+        imagemitobinaryraw = imread(filepathMitoBinary);
+        imsize = size(imagemitobinaryraw);
         
         % Make binary nucleoid center map 
-        nucleoidmap = zeros(size(imagemitobinary));
+        nucleoidmap = zeros(size(imagemitobinaryraw));
         [numnucl, ~] = size(datanucleoids);
         for i = 1:numnucl
             xpos = datanucleoids(i,2);
@@ -73,7 +69,10 @@ for fileNum = fileNumbers
         end
         
         % Remove small objects and make labelled binary mitochondria image
-        imagemitobinary = bwareaopen(imagemitobinary, threshsize);
+        threshsizelo = (sqrt(0.08)/pixelsize)^2;  % Lo size thresh in pxls for bin mito
+        threshsizehi = (sqrt(4)/pixelsize)^2;  % Hi size thresh in pxls for bin mito
+        imagemitobinary = imclearborder(imagemitobinaryraw);  % Remove border objects
+        imagemitobinary = bwareafilt(imbinarize(imagemitobinary), [threshsizelo threshsizehi]);
         [labelmito, num] = bwlabel(imagemitobinary');
         labelmito = labelmito';
         
@@ -95,36 +94,16 @@ for fileNum = fileNumbers
             ypos = min(max(ypos,1),imsize(1));
             datamito(i,params+1) = imagesomabinary(ypos,xpos);
         end
-
-        % Get the distance from the soma along the axon to the mitochondria
-        %%% MANUALLY CREATE .txt file that carries information about the
-        %%% seed point for the bwdistgeodesic transformation, and the
-        %%% previous distance along the axon.
-        % Read the axon distance info
-        datadistinfo = dlmread(filepathAxonDistInfo,'',1,1);
-        seedx = datadistinfo(1); seedy = datadistinfo(2); prevdist = datadistinfo(3);
-        % Read the binary AIS-image (axon image)
-        imageaisbin = imread(filepathAISBinary);
-        imageaisbin = logical(imageaisbin);
-        aisdist = bwdistgeodesic(imageaisbin, seedx, seedy, 'quasi-euclidean') + prevdist;
-        for i = 1:num
-            xpos = datamito(i,1);
-            xpos = round(xpos/pixelsize);
-            ypos = datamito(i,2);
-            ypos = round(ypos/pixelsize);
-            % Make sure all coordinates are in the range of the img size
-            xpos = min(max(xpos,1),imsize(2));
-            ypos = min(max(ypos,1),imsize(1));
-            datamito(i,params+2) = aisdist(ypos,xpos) * pixelsize;
-        end
-        % Round the distances to three decimals
-        datamito(:,8) = round(datamito(:,8),3);
         
         % Get number of nucleoids in each mito and save to mitoinfo
+%         figure()
+%         imshow(nucleoidmap,[])
         for i = 1:num
             singlemitobinary = ismember(labelmito, i);
+%             figure()
+%             imshow(singlemitobinary,[])
             singlemitonucleoids = nucleoidmap.*singlemitobinary;
-            datamito(i,params+3) = sum(sum(singlemitonucleoids));
+            datamito(i,params+2) = sum(sum(singlemitonucleoids));
         end
 
         % Save data

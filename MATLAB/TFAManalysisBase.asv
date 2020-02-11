@@ -31,7 +31,6 @@ filenameAnalysisSave = '_MitoAnalysisFull.txt';
 filenameMitoBinary = '_MitoBinary.tif';
 filenameSomaBinary = '-SomaBinary.tif';
 filenameAISBinary = '_AISBinary.tif';
-filenameAxonDistInfo = '_AxonDistInfo.txt';
 fileNumbers = 1:lastFileNumber;
 
 for fileNum = fileNumbers
@@ -42,7 +41,6 @@ for fileNum = fileNumbers
     filepathAnaSave = strFilepath(fileNum,filenameAnalysisSave,masterFolderPath);
     filepathSomaBinary = strFilepath(fileNum,filenameSomaBinary,masterFolderPath);
     filepathAISBinary = strFilepath(fileNum,filenameAISBinary,masterFolderPath);
-    filepathAxonDistInfo = strFilepath(fileNum,filenameAxonDistInfo,masterFolderPath);
     
     try
         % Read the mito and line profile data
