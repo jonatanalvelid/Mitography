@@ -1,9 +1,9 @@
 %%%
-% Mitography - TFAM analysis
-% Analysing number of nucleoids in mitochondria, based on TFAM and
-% OMM-staining.
+% Mitography - anitDNA analysis
+% Analysing number of nucleoids in mitochondria, based on DNA and
+% Tom20-staining.
 %----------------------------
-% Version: 191203
+% Version: 200312
 % Last updated features: New script
 %
 % @jonatanalvelid
@@ -28,9 +28,10 @@ filenameallPxs = '_PixelSizes.txt';
 filenameallMito = '_MitoAnalysis.txt';
 filenamenucleoids = '_Nucleoids.txt';
 filenameAnalysisSave = '_MitoAnalysisFull.txt';
-filenameMitoBinary = '_MitoBinary.tif';
-filenameSomaBinary = '-SomaBinary.tif';
-filenameAISBinary = '_AISBinary.tif';
+filenameMitoBinary = '-MitoBinary.tif';
+% filenameSomaBinary = '-SomaBinary.tif';
+filenameAISBinary = '_Map2Binary.tif';
+% filenameAxonDistInfo = '_AxonDistInfo.txt';
 fileNumbers = 1:lastFileNumber;
 
 for fileNum = fileNumbers
@@ -39,8 +40,9 @@ for fileNum = fileNumbers
     filepathnucleoids = strFilepath(fileNum,filenamenucleoids,masterFolderPath);
     filepathMitoBinary = strFilepath(fileNum,filenameMitoBinary,masterFolderPath);
     filepathAnaSave = strFilepath(fileNum,filenameAnalysisSave,masterFolderPath);
-    filepathSomaBinary = strFilepath(fileNum,filenameSomaBinary,masterFolderPath);
+%     filepathSomaBinary = strFilepath(fileNum,filenameSomaBinary,masterFolderPath);
     filepathAISBinary = strFilepath(fileNum,filenameAISBinary,masterFolderPath);
+%     filepathAxonDistInfo = strFilepath(fileNum,filenameAxonDistInfo,masterFolderPath);
     
     try
         % Read the mito and line profile data
@@ -55,6 +57,10 @@ for fileNum = fileNumbers
         % Load binary mitochondria image 
         imagemitobinary = imread(filepathMitoBinary);
         imsize = size(imagemitobinary);
+        
+        % Load binary Map2 image 
+        imagemap2binary = imread(filepathAISBinary);
+        imagemap2binary = imagemap2binary/max(max(imagemap2binary));
         
         % Make binary nucleoid center map 
         nucleoidmap = zeros(size(imagemitobinary));
@@ -75,54 +81,32 @@ for fileNum = fileNumbers
         [labelmito, num] = bwlabel(imagemitobinary');
         labelmito = labelmito';
         
-        % Mark those mitochondria that are in "soma" areas
-        try
-            imagesomabinary = imread(filepathSomaBinary);
-            imagesomabinary = logical(imagesomabinary);
-        catch err
-            imagesomabinary = zeros(size(imagemitobinary));
-            imagesomabinary = logical(imagesomabinary);
-        end
-        for i = 1:num
-            xpos = datamito(i,1);
-            xpos = round(xpos/pixelsize);
-            ypos = datamito(i,2);
-            ypos = round(ypos/pixelsize);
-            % Make sure all coordinates are in the range of the img size
-            xpos = min(max(xpos,1),imsize(2));
-            ypos = min(max(ypos,1),imsize(1));
-            datamito(i,params+1) = imagesomabinary(ypos,xpos);
-        end
-
-        % Get the distance from the soma along the axon to the mitochondria
-        %%% MANUALLY CREATE .txt file that carries information about the
-        %%% seed point for the bwdistgeodesic transformation, and the
-        %%% previous distance along the axon.
-        % Read the axon distance info
-        datadistinfo = dlmread(filepathAxonDistInfo,'',1,1);
-        seedx = datadistinfo(1); seedy = datadistinfo(2); prevdist = datadistinfo(3);
-        % Read the binary AIS-image (axon image)
-        imageaisbin = imread(filepathAISBinary);
-        imageaisbin = logical(imageaisbin);
-        aisdist = bwdistgeodesic(imageaisbin, seedx, seedy, 'quasi-euclidean') + prevdist;
-        for i = 1:num
-            xpos = datamito(i,1);
-            xpos = round(xpos/pixelsize);
-            ypos = datamito(i,2);
-            ypos = round(ypos/pixelsize);
-            % Make sure all coordinates are in the range of the img size
-            xpos = min(max(xpos,1),imsize(2));
-            ypos = min(max(ypos,1),imsize(1));
-            datamito(i,params+2) = aisdist(ypos,xpos) * pixelsize;
-        end
-        % Round the distances to three decimals
-        datamito(:,8) = round(datamito(:,8),3);
+%         % Mark those mitochondria that are in "soma" areas
+%         try
+%             imagesomabinary = imread(filepathSomaBinary);
+%             imagesomabinary = logical(imagesomabinary);
+%         catch err
+%             imagesomabinary = zeros(size(imagemitobinary));
+%             imagesomabinary = logical(imagesomabinary);
+%         end
+%         for i = 1:num
+%             xpos = datamito(i,1);
+%             xpos = round(xpos/pixelsize);
+%             ypos = datamito(i,2);
+%             ypos = round(ypos/pixelsize);
+%             % Make sure all coordinates are in the range of the img size
+%             xpos = min(max(xpos,1),imsize(2));
+%             ypos = min(max(ypos,1),imsize(1));
+%             datamito(i,params+1) = imagesomabinary(ypos,xpos);
+%         end
         
         % Get number of nucleoids in each mito and save to mitoinfo
+        % Also save map2/or not as a binary variable in datamito
         for i = 1:num
             singlemitobinary = ismember(labelmito, i);
             singlemitonucleoids = nucleoidmap.*singlemitobinary;
-            datamito(i,params+3) = sum(sum(singlemitonucleoids));
+            datamito(i,params+1) = sum(sum(singlemitonucleoids));
+            datamito(i,params+2) = mitoAIS(datamito(i,2),datamito(i,1),pixelsize,imagemap2binary);
         end
 
         % Save data

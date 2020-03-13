@@ -1,6 +1,6 @@
 %%%
-% Mitography - TFAM analysis - data plotting
-% Plotting the data from the TFAM analysis.
+% Mitography - antiDNA analysis - data plotting
+% Plotting the data from the DNA analysis.
 %----------------------------
 % Version: 191217
 % Last updated features: New script
@@ -24,7 +24,7 @@ lastFileNumber = max(filenumbers);
 
 mitodatatemp = [];
 mitodata = [];
-somadist = [];
+map2bin = [];
 numnucl = [];
 area = [];
 
@@ -42,12 +42,12 @@ for fileNum = fileNumbers
         [num,params] = size(datamito);
         
         % Get somadist and number of nucleotides for all mito in image
-        somadisttemp = datamito(:,params-1);
-        numnucltemp = datamito(:,params);
+        map2bintemp = datamito(:,params);
+        numnucltemp = datamito(:,params-1);
         areatemp = datamito(:,3);
         
         % Add to list of all mitochondria in all images
-        somadist = vertcat(somadist,somadisttemp);
+        map2bin = vertcat(map2bin,map2bintemp);
         numnucl = vertcat(numnucl,numnucltemp);
         area = vertcat(area,areatemp);
         
@@ -55,11 +55,11 @@ for fileNum = fileNumbers
         disp(strcat(num2str(fileNum),': General error.'));
     end 
 end
-mitodatatemp(:,1) = somadist;
+mitodatatemp(:,1) = map2bin;
 mitodatatemp(:,2) = numnucl;
 mitodatatemp(:,3) = area;
 mitodatatemp(any(isnan(mitodatatemp), 2), :) = [];
-mitodatatemp(mitodatatemp(:,1)==0, :) = [];
+% mitodatatemp(mitodatatemp(:,1)==0, :) = [];
 
 mitodata = vertcat(mitodata,mitodatatemp);
 
