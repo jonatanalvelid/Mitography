@@ -19,7 +19,7 @@ clear
 functionFolder = fileparts(which('findFunctionFolders.m'));
 addpath(genpath(functionFolder));
 
-masterFolderPath = strcat(uigetdir('X:\Mitography\NEW\Metabolism\Control\OMP25'),'\');
+masterFolderPath = strcat(uigetdir('X:\Mitography\TMR-MitographyAnalysis\MATLAB-RL'),'\');
 filenameparam = 'ImageJAnalysisParameters.txt';
 filepathparam = strcat(masterFolderPath,filenameparam);
 try
