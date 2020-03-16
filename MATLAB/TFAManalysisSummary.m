@@ -84,7 +84,7 @@ set(gca,'TickDir','out');
 % xticklabels({xlimlow1,'','',(xlimup1-xlimlow1)/4,'','',(xlimup1-xlimlow1)/2,'','',3*(xlimup1-xlimlow1)/4,'','',xlimup1})
 % yticks([0:ylimup1/12:ylimup1])
 % yticklabels({0,'','',ylimup1/4,'','',ylimup1/2,'','',3*ylimup1/4,'','',ylimup1})
-%}
+
 % 
 % % Area vs num nucleoids scatter plot
 % 
@@ -100,6 +100,7 @@ set(gca,'TickDir','out');
 % % xticklabels({xlimlow1,'','',(xlimup1-xlimlow1)/4,'','',(xlimup1-xlimlow1)/2,'','',3*(xlimup1-xlimlow1)/4,'','',xlimup1})
 % % yticks([0:ylimup1/12:ylimup1])
 % % yticklabels({0,'','',ylimup1/4,'','',ylimup1/2,'','',3*ylimup1/4,'','',ylimup1})
+%}
 
 meanarea = []; stdarea = []; allarea = nan(300,5);
 for i=0:4
@@ -118,36 +119,34 @@ end
 nuclgroups = {'0','1','2','3','4+'};
 
 
-% % Mean+std area errorbar plot vs num nucleoids
-% 
-% AreaErrorbarfig = figure('rend','painters','pos',[100 100 600 400]);
-% h4 = errorbar(0:4,meanarea,stdarea);
-% % xlim([xlimlow1 xlimup1])
-% ylim([0 4])
-% xlabel(ylabeltext2)
-% ylabel(xlabeltext2)
-% set(gca,'FontSize',fontsize)
-% set(gca,'TickDir','out');
-% % xticks([xlimlow1:(xlimup1-xlimlow1)/12:xlimup1])
-% % xticklabels({xlimlow1,'','',(xlimup1-xlimlow1)/4,'','',(xlimup1-xlimlow1)/2,'','',3*(xlimup1-xlimlow1)/4,'','',xlimup1})
-% % yticks([0:ylimup1/12:ylimup1])
-% % yticklabels({0,'','',ylimup1/4,'','',ylimup1/2,'','',3*ylimup1/4,'','',ylimup1})
-
-
-% Area boxplot vs num nucleoids
+% Area boxplot vs num nucleoids with data points jittered
 
 AreaErrorbarfig = figure('rend','painters','pos',[100 100 600 400]);
-h5 = boxplot(allarea,nuclgroups);
-% xlim([xlimlow1 xlimup1])
+areaerrorplot = boxplot(allarea,nuclgroups);
+hold on
+
+markersize = 5;
+x1=ones(length(allarea)).*(1+(rand(length(allarea))-0.5)/3);
+x2=ones(length(allarea)).*(1+(rand(length(allarea))-0.5)/6);
+x3=ones(length(allarea)).*(1+(rand(length(allarea))-0.5)/9);
+x4=ones(length(allarea)).*(1+(rand(length(allarea))-0.5)/12);
+x5=ones(length(allarea)).*(1+(rand(length(allarea))-0.5)/15);
+f1=scatter(x1(:,1), allarea(:,1), markersize,'k','filled');
+f1.MarkerFaceAlpha = 1;
+f2=scatter(x2(:,2).*2, allarea(:,2), markersize,'k','filled');
+f2.MarkerFaceAlpha = f1.MarkerFaceAlpha;
+f3=scatter(x3(:,3).*3, allarea(:,3), markersize,'k','filled');
+f3.MarkerFaceAlpha = f1.MarkerFaceAlpha;
+f4=scatter(x4(:,4).*4, allarea(:,4), markersize,'k','filled');
+f4.MarkerFaceAlpha = f1.MarkerFaceAlpha;
+f5=scatter(x5(:,5).*5, allarea(:,5), markersize,'k','filled');
+f5.MarkerFaceAlpha = f1.MarkerFaceAlpha;
+
 ylim([0 5])
 xlabel(ylabeltext2)
 ylabel(xlabeltext2)
 set(gca,'FontSize',16)
 set(gca,'TickDir','out');
-% xticks([xlimlow1:(xlimup1-xlimlow1)/12:xlimup1])
-% xticklabels({xlimlow1,'','',(xlimup1-xlimlow1)/4,'','',(xlimup1-xlimlow1)/2,'','',3*(xlimup1-xlimlow1)/4,'','',xlimup1})
-% yticks([0:ylimup1/12:ylimup1])
-% yticklabels({0,'','',ylimup1/4,'','',ylimup1/2,'','',3*ylimup1/4,'','',ylimup1})
 
 
 % Stack bar graph of number of nucleoid per mitochondria per distance bin
@@ -192,6 +191,7 @@ set(gca,'TickDir','out');
 legend('0 nucleoids','1 nucleoids','2 nucleoids','3 nucleoids','4 nucleoids','5 nucleoids','6 nucleoids');
 
 
+%{
 % % Box plot of number of nucleoid per mitochondria per distance bin
 % 
 % NucleoidStackedBarGraph = figure('rend','painters','pos',[100 100 600 400]);
@@ -203,3 +203,4 @@ legend('0 nucleoids','1 nucleoids','2 nucleoids','3 nucleoids','4 nucleoids','5 
 % set(gca,'TickDir','out');
 % % set(gca,'ytick',[]);
 % % legend('0 nucleoids','1 nucleoids','2 nucleoids','3 nucleoids','4 nucleoids','5 nucleoids','6 nucleoids');
+%}

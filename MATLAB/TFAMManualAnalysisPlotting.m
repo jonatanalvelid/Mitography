@@ -96,14 +96,53 @@ nuclgroups = {'0','1','2','3','4+'};
 
 AreaErrorbarfigax = figure('rend','painters','pos',[100 100 600 400]);
 hareaax = boxplot(allareaax,nuclgroups);
-ylim([0 7])
+hold on
+
+markersize = 5;
+x1=ones(length(allareaax)).*(1+(rand(length(allareaax))-0.5)/3);
+x2=ones(length(allareaax)).*(1+(rand(length(allareaax))-0.5)/6);
+x3=ones(length(allareaax)).*(1+(rand(length(allareaax))-0.5)/9);
+x4=ones(length(allareaax)).*(1+(rand(length(allareaax))-0.5)/12);
+x5=ones(length(allareaax)).*(1+(rand(length(allareaax))-0.5)/15);
+f1=scatter(x1(:,1), allareaax(:,1), markersize,'k','filled');
+f1.MarkerFaceAlpha = 1;
+f2=scatter(x2(:,2).*2, allareaax(:,2), markersize,'k','filled');
+f2.MarkerFaceAlpha = f1.MarkerFaceAlpha;
+f3=scatter(x3(:,3).*3, allareaax(:,3), markersize,'k','filled');
+f3.MarkerFaceAlpha = f1.MarkerFaceAlpha;
+f4=scatter(x4(:,4).*4, allareaax(:,4), markersize,'k','filled');
+f4.MarkerFaceAlpha = f1.MarkerFaceAlpha;
+f5=scatter(x5(:,5).*5, allareaax(:,5), markersize,'k','filled');
+f5.MarkerFaceAlpha = f1.MarkerFaceAlpha;
+
+ylim([0 8])
 % xlabel(ylabeltext2)
 ylabel(xlabeltext2)
 set(gca,'FontSize',16)
 set(gca,'TickDir','out');
 
+
 AreaErrorbarfigdend = figure('rend','painters','pos',[100 100 600 400]);
 hareadend = boxplot(allareadend,nuclgroups);
+hold on
+
+markersize = 5;
+x1=ones(length(allareadend)).*(1+(rand(length(allareadend))-0.5)/3);
+x2=ones(length(allareadend)).*(1+(rand(length(allareadend))-0.5)/6);
+x3=ones(length(allareadend)).*(1+(rand(length(allareadend))-0.5)/9);
+x4=ones(length(allareadend)).*(1+(rand(length(allareadend))-0.5)/12);
+x5=ones(length(allareadend)).*(1+(rand(length(allareadend))-0.5)/15);
+f1=scatter(x1(:,1), allareadend(:,1), markersize,'k','filled');
+f1.MarkerFaceAlpha = 1;
+f2=scatter(x2(:,2).*2, allareadend(:,2), markersize,'k','filled');
+f2.MarkerFaceAlpha = f1.MarkerFaceAlpha;
+f3=scatter(x3(:,3).*3, allareadend(:,3), markersize,'k','filled');
+f3.MarkerFaceAlpha = f1.MarkerFaceAlpha;
+f4=scatter(x4(:,4).*4, allareadend(:,4), markersize,'k','filled');
+f4.MarkerFaceAlpha = f1.MarkerFaceAlpha;
+f5=scatter(x5(:,5).*5, allareadend(:,5), markersize,'k','filled');
+f5.MarkerFaceAlpha = f1.MarkerFaceAlpha;
+
 ylim([0 7])
 % xlabel(ylabeltext2)
 ylabel(xlabeltext2)
