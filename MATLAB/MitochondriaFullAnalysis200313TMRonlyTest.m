@@ -19,7 +19,7 @@ clear
 functionFolder = fileparts(which('findFunctionFolders.m'));
 addpath(genpath(functionFolder));
 
-masterFolderPath = strcat(uigetdir('X:\Mitography\NEW\Metabolism\Control\OMP25'),'\');
+masterFolderPath = strcat(uigetdir('T:\Mitography\TMR-MitographyAnalysis\MATLAB-RL'),'\');
 filenameparam = 'ImageJAnalysisParameters.txt';
 filepathparam = strcat(masterFolderPath,filenameparam);
 try
@@ -41,7 +41,7 @@ filenameMitoBinary = '_MitoBinary.tif';
 filenameSomaBinary = '-SomaBinary.tif';
 filenameTMR = '-TMR.tif';
 
-for fileNum = 1%fileNumbers
+for fileNum = 3%fileNumbers
     
     filepathAnaSave = strFilepath(fileNum,filenameAnalysisSave,masterFolderPath);
     filepathAna = strFilepath(fileNum,filenameAnalysis,masterFolderPath);
@@ -97,10 +97,9 @@ for fileNum = 1%fileNumbers
             
             %decide what is the limiting TMR signal for positive/negative
             %signal, and save another variable (111) - boolean yes/no
-            threshsignal = 0.5;  % decide thresh signal here
+%             threshsignal = 0.5;  % decide thresh signal here
             
             % find thresh by double gaussian fit and find intersection %%%
-            % FIX THIS GAUSSIAN FIT HERE NEXT TIME
             numgroups = 15;
             [cnts,edges] = histcounts(dataAnalysis(:,10),numgroups);
             edges(end) = [];
@@ -109,34 +108,46 @@ for fileNum = 1%fileNumbers
             [xData, yData] = prepareCurveData( x, cnts );
 
             % Set up fittype and options.
-            ft = fittype( 'a1*exp(-((-x-b1)/c1)^2)+a2*exp(-((x-b2)/c2)^2)+d', 'independent', 'x', 'dependent', 'y' );
+            % gaussian bkg + gaussian signal
+%             ft = fittype( 'a1*exp(-((x-b1)/c1)^2)+a2*exp(-((x-b2)/c2)^2)+d', 'independent', 'x', 'dependent', 'y' );
+%             opts = fitoptions( 'Method', 'NonlinearLeastSquares' );
+%             opts.Display = 'Off';
+%             opts.Lower = [0 1 -x(end)/4 0 -5 -5 0];
+%             opts.StartPoint = [1 2 0 x(round(numgroups/2)) -0.5 3 0.1];
+%             opts.Upper = [10 5 x(end)/4 x(end) 10 10 0.3];
+            % exp bkg + gaussian signal
+            ft = fittype( 'a*exp(-x/b)+a1*exp(-((x-b1)/c1)^2)', 'independent', 'x', 'dependent', 'y' );
             opts = fitoptions( 'Method', 'NonlinearLeastSquares' );
             opts.Display = 'Off';
-            opts.Lower = [0 0 -x(end)/4 0 -5 -5 0];
-            opts.StartPoint = [1 0.5 0 x(round(numgroups/2)) -0.5 3 0.1];
-            opts.Upper = [10 5 x(end)/4 x(end) 10 10 0.3];
+            opts.Lower = [0 0 0.3 1 0];
+            opts.StartPoint = [0.74819792830633 0.430126544030985 1 0.0374310723626394 5];
+            opts.Upper = [Inf Inf 5 15 10];
 
             % Fit model to data.
             [fitresult, gof] = fit( xData, yData, ft, opts );
             cfs = coeffvalues(fitresult);
             disp(cfs)
             
+            % sample the space and get the fitted gaussians
             xsampl = 1:x(end)/100:x(end);
-            bkggauss = cfs(1).*exp(-((-xsampl-cfs(3))./cfs(5)).^2);
-            signalgauss = cfs(2).*exp(-((-xsampl-cfs(4))./cfs(6)).^2);
-            [~,idx] = min(bkggauss-signalgauss);
+            bkggauss = cfs(1).*exp(-((xsampl-cfs(3))./cfs(5)).^2);
+            signalgauss = cfs(2).*exp(-((xsampl-cfs(4))./cfs(6)).^2);
+            % compare gaussians and set threshold to where they cross
+            [~,idx] = min(abs(bkggauss-signalgauss));
             disp(xsampl(idx))
+            threshsignal = xsampl(idx);
             
-            % Plot fit with data.
-            figure( 'Name', 'untitled fit 1' );
-            h = plot( fitresult, xData, yData );
-            legend( h, 'cnts vs. x', 'untitled fit 1', 'Location', 'NorthEast', 'Interpreter', 'none' );
-            % Label axes
-            xlabel( 'x', 'Interpreter', 'none' );
-            ylabel( 'cnts', 'Interpreter', 'none' );
-            grid on
+%             % Plot fit with data.
+%             figure( 'Name', 'untitled fit 1' );
+%             h = plot( fitresult, xData, yData );
+%             legend( h, 'cnts vs. x', 'untitled fit 1', 'Location', 'NorthEast', 'Interpreter', 'none' );
+%             % Label axes
+%             xlabel( 'x', 'Interpreter', 'none' );
+%             ylabel( 'cnts', 'Interpreter', 'none' );
+%             grid on
            
-            
+            % save boolean variable for which mito has TMR signal above
+            % thresh (signal) and which are below (no signal)
             for i=1:sizeData(1)
                 if dataAnalysis(i,10) > threshsignal
                     dataAnalysis(i,11) = 1;
