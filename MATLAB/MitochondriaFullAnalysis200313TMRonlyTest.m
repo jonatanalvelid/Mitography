@@ -13,7 +13,7 @@
 %
 %%%
 
-clear
+clear all
 
 % Add function folder to filepath, so that those functions can be read.
 functionFolder = fileparts(which('findFunctionFolders.m'));
@@ -41,7 +41,7 @@ filenameMitoBinary = '_MitoBinary.tif';
 filenameSomaBinary = '-SomaBinary.tif';
 filenameTMR = '-TMR.tif';
 
-for fileNum = 3%fileNumbers
+for fileNum = 1%fileNumbers
     
     filepathAnaSave = strFilepath(fileNum,filenameAnalysisSave,masterFolderPath);
     filepathAna = strFilepath(fileNum,filenameAnalysis,masterFolderPath);
@@ -130,12 +130,25 @@ for fileNum = 3%fileNumbers
             
             % sample the space and get the fitted gaussians
             xsampl = 1:x(end)/100:x(end);
-            bkggauss = cfs(1).*exp(-((xsampl-cfs(3))./cfs(5)).^2);
-            signalgauss = cfs(2).*exp(-((xsampl-cfs(4))./cfs(6)).^2);
+            % double gaussian
+%             bkg = cfs(1).*exp(-((xsampl-cfs(3))./cfs(5)).^2);
+%             signalgauss = cfs(2).*exp(-((xsampl-cfs(4))./cfs(6)).^2);
+%             % compare gaussians and set threshold to where they cross
+%             [~,idx] = min(abs(bkggauss-signalgauss));
+            % exp + gaussian
+            bkg = cfs(1).*exp(-xsampl./cfs(3));
+            signalgauss = cfs(2).*exp(-((xsampl-cfs(4))./cfs(5)).^2);
             % compare gaussians and set threshold to where they cross
-            [~,idx] = min(abs(bkggauss-signalgauss));
+            [~,idx] = min(abs(bkg-signalgauss));
+            
             disp(xsampl(idx))
             threshsignal = xsampl(idx);
+            
+            figure(1)
+            plot(xsampl,bkg)
+            hold on
+            plot(xsampl,signalgauss)
+            plot(xsampl,abs(bkg-signalgauss))
             
 %             % Plot fit with data.
 %             figure( 'Name', 'untitled fit 1' );
