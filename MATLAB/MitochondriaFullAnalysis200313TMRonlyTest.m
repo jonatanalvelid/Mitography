@@ -13,7 +13,7 @@
 %
 %%%
 
-clear all
+% clear all
 
 % Add function folder to filepath, so that those functions can be read.
 functionFolder = fileparts(which('findFunctionFolders.m'));
@@ -41,7 +41,7 @@ filenameMitoBinary = '_MitoBinary.tif';
 filenameSomaBinary = '-SomaBinary.tif';
 filenameTMR = '-TMR.tif';
 
-for fileNum = 1%fileNumbers
+for fileNum = 1:10%fileNumbers
     
     filepathAnaSave = strFilepath(fileNum,filenameAnalysisSave,masterFolderPath);
     filepathAna = strFilepath(fileNum,filenameAnalysis,masterFolderPath);
@@ -61,9 +61,7 @@ for fileNum = 1%fileNumbers
         % Read the pixel size
         datapxs = dlmread(filepathpxs,'',1,1);
         pixelsize = datapxs(1,1);
-%         pixelsize = 0.0292969;
 
-        
         %%% MITOCHONDRIA TMR CHECK AND FLAGGING
         
         % Load TMR image
@@ -74,11 +72,20 @@ for fileNum = 1%fileNumbers
         % Remove small objects and make labelled binary mitochondria image
         % flip axes of imagemitobinary so numbering matches previous
         % numbering in imageJ, i.e. in mitoAnalysis.text file
+        imjbinsizelim = 0.006;  % binary object size limit in ImageJ (OMP = 0.006 um^2)
+        imagemitobinary = bwareaopen(imagemitobinary,round(imjbinsizelim/pixelsize^2));
         [labelmito, num] = bwlabel(imagemitobinary');
         % flip axes back
         labelmito = labelmito';
-        % Get single mito map, multiply with tmr image
-        for i = 1:sizeData(1)
+        
+        % mark all mitochondria that are touching the border
+        imagemitobin = imbinarize(labelmito);
+        bordermitoimg = imagemitobin - imclearborder(imagemitobin);
+        labelbordermitoimg = labelmito .* bordermitoimg;
+        bordermito = unique(labelbordermitoimg);
+        bordermito(1) = [];  % remove 0 entry
+        for i = bordermito
+            dataAnalysis(i,10) = 1;
         end
 
         if not(isempty(dataAnalysis))
@@ -89,19 +96,20 @@ for fileNum = 1%fileNumbers
                 tmrsignal = imagetmr(singlemitobinary);
                 % get average TMR signal/pixel per mito, save to data (110)
                 tmrsignalavg = mean(tmrsignal);
-                dataAnalysis(i,10) = tmrsignalavg;
-%                 xcor = max(min(round(dataAnalysis(i,1)/pixelsize),imsize(1)),1);
-%                 ycor = max(min(round(dataAnalysis(i,2)/pixelsize),imsize(1)),1);
-%                 dataAnalysis(i,12) = singlemitobinary(ycor,xcor);
+                borderbool = dataAnalysis(i,10);
+                if borderbool == 0
+                    dataAnalysis(i,11) = tmrsignalavg;
+                else
+                    dataAnalysis(i,11) = nan;
+                end
             end
-            
+
             %decide what is the limiting TMR signal for positive/negative
-            %signal, and save another variable (111) - boolean yes/no
-%             threshsignal = 0.5;  % decide thresh signal here
-            
-            % find thresh by double gaussian fit and find intersection %%%
-            numgroups = 15;
-            [cnts,edges] = histcounts(dataAnalysis(:,10),numgroups);
+            %signal, and save another variable - boolean yes/no
+            % find thresh by double gaussian fit and find intersection
+            numgroups = round(3*sqrt(sizeData(1)));
+            tmrvals = dataAnalysis(:,11);
+            [cnts,edges] = histcounts(tmrvals,numgroups);
             edges(end) = [];
             cnts = cnts/max(cnts);
             x = edges + (edges(2)-edges(1))/2;
@@ -109,19 +117,12 @@ for fileNum = 1%fileNumbers
 
             % Set up fittype and options.
             % gaussian bkg + gaussian signal
-%             ft = fittype( 'a1*exp(-((x-b1)/c1)^2)+a2*exp(-((x-b2)/c2)^2)+d', 'independent', 'x', 'dependent', 'y' );
-%             opts = fitoptions( 'Method', 'NonlinearLeastSquares' );
-%             opts.Display = 'Off';
-%             opts.Lower = [0 1 -x(end)/4 0 -5 -5 0];
-%             opts.StartPoint = [1 2 0 x(round(numgroups/2)) -0.5 3 0.1];
-%             opts.Upper = [10 5 x(end)/4 x(end) 10 10 0.3];
-            % exp bkg + gaussian signal
             ft = fittype( 'a*exp(-x/b)+a1*exp(-((x-b1)/c1)^2)', 'independent', 'x', 'dependent', 'y' );
             opts = fitoptions( 'Method', 'NonlinearLeastSquares' );
             opts.Display = 'Off';
-            opts.Lower = [0 0 0.3 1 0];
-            opts.StartPoint = [0.74819792830633 0.430126544030985 1 0.0374310723626394 5];
-            opts.Upper = [Inf Inf 5 15 10];
+            opts.Lower = [0 0 0.3 max(tmrvals)*1/4 max(tmrvals)*1/8];
+            opts.StartPoint = [1 0.5 1 max(tmrvals)*1/2 max(tmrvals)*1/2];
+            opts.Upper = [10 1.5 10 max(tmrvals)*3/4 max(tmrvals)];
 
             % Fit model to data.
             [fitresult, gof] = fit( xData, yData, ft, opts );
@@ -129,49 +130,40 @@ for fileNum = 1%fileNumbers
             disp(cfs)
             
             % sample the space and get the fitted gaussians
-            xsampl = 1:x(end)/100:x(end);
-            % double gaussian
-%             bkg = cfs(1).*exp(-((xsampl-cfs(3))./cfs(5)).^2);
-%             signalgauss = cfs(2).*exp(-((xsampl-cfs(4))./cfs(6)).^2);
-%             % compare gaussians and set threshold to where they cross
-%             [~,idx] = min(abs(bkggauss-signalgauss));
+            stepsize = x(end)/max(2*max(tmrvals),100);
+            xsampl = 0:stepsize:x(end);
             % exp + gaussian
             bkg = cfs(1).*exp(-xsampl./cfs(3));
             signalgauss = cfs(2).*exp(-((xsampl-cfs(4))./cfs(5)).^2);
             % compare gaussians and set threshold to where they cross
-            [~,idx] = min(abs(bkg-signalgauss));
+            compsign = abs(bkg-signalgauss);
+            compsign = compsign(1:round(cfs(4)/stepsize));
+            [~,idx] = min(compsign);
             
             disp(xsampl(idx))
             threshsignal = xsampl(idx);
             
-            figure(1)
+            figure()
             plot(xsampl,bkg)
             hold on
             plot(xsampl,signalgauss)
-            plot(xsampl,abs(bkg-signalgauss))
-            
-%             % Plot fit with data.
-%             figure( 'Name', 'untitled fit 1' );
-%             h = plot( fitresult, xData, yData );
-%             legend( h, 'cnts vs. x', 'untitled fit 1', 'Location', 'NorthEast', 'Interpreter', 'none' );
-%             % Label axes
-%             xlabel( 'x', 'Interpreter', 'none' );
-%             ylabel( 'cnts', 'Interpreter', 'none' );
-%             grid on
-           
+            plot(xsampl(1:round(cfs(4)/stepsize)),compsign)
+            scatter(xData,yData)
+
             % save boolean variable for which mito has TMR signal above
             % thresh (signal) and which are below (no signal)
             for i=1:sizeData(1)
-                if dataAnalysis(i,10) > threshsignal
-                    dataAnalysis(i,11) = 1;
+                tmrsignal = dataAnalysis(i,11);
+                if tmrsignal > threshsignal
+                    dataAnalysis(i,12) = 1;
+                elseif isnan(tmrsignal)
+                    dataAnalysis(i,12) = nan;
                 else
-                    dataAnalysis(i,11) = 0;
+                    dataAnalysis(i,12) = 0;
                 end
             end
         end
         
-%         disp(strcat(num2str(fileNum),': Data handling done.'))
-%         dlmwrite(filepathAnaSave,dataAnalysis,'delimiter','\t');
     catch err
         disp(strcat(num2str(fileNum),': No image with this number or a file reading error.'))
     end

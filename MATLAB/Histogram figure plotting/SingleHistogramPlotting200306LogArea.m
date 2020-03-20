@@ -10,6 +10,7 @@ darkGray = [0.2 0.2 0.2];
 
 areathresh = 0.043;
 
+% h1var = mitoAreaNP;
 h1var = areaMito;
 % h2var = mitoAreaRaw;
 

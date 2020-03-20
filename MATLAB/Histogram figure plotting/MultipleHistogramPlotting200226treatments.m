@@ -30,17 +30,17 @@ areathresh = 0.043;
 % h9var = h7var((mitoareasted < areathresh) & (mitolengthsted < 1));  %
 % That long mitochondria should not be included
 
-h9var = areControlRL;
-h10var = areGalac5RL;
-h11var = areGalac5Amycin10RL;
-h12var = areGluAmycin10RL;
+h9var = areControl;
+h10var = areGalac5;
+h11var = areGalac5Amycin10;
+h12var = areGlucAmycin10;
 
 boundlow = [0, 0, 0, 0, 0];
-stepwidth = [0.021, 0.09, 0.12, 0.05];
-boundup = [0.7, 3, 5, 1];
+stepwidth = [0.021, 0.05, 0.12, 0.05];
+boundup = [0.4, 2, 5, 1];
 xlimlow = boundlow;
 xlimup = boundup;
-ylimup = [0.3, 0.4, 0.45, 0.25];
+ylimup = [0.25, 0.25, 0.15, 0.25];
 
 fontsize = 12;
 opacity = 0.5;
@@ -57,7 +57,7 @@ xlabeltext3 = 'Mitochondria length [um]';
 xlabeltext4 = 'Mitochondria AR [arb.u.]';
 
 
-
+%{
 % %%%,'FaceAlpha',opacity %%% If you want different opacity
 % mitowidfig = figure('rend','painters','pos',[100 100 300 300]);
 % n = 1;
@@ -69,24 +69,6 @@ xlabeltext4 = 'Mitochondria AR [arb.u.]';
 % ylim([0 ylimup(n)])
 % ylabel('Norm. frequency')
 % %title(strcat(titletext1,', N=',num2str(length(h1var))));
-% legend(legendtext1,legendtext2);
-% set(gca,'FontSize',fontsize)
-% set(gca,'TickDir','out');
-% xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
-% xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
-% yticks([0:ylimup(n)/12:ylimup(n)])
-% yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
-% 
-% mitoareafig = figure('rend','painters','pos',[500 100 300 300]);
-% n = 2;
-% h3 = histogram(h3var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
-% hold on
-% h4 = histogram(h4var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
-% xlim([xlimlow(n) xlimup(n)])
-% xlabel(xlabeltext2)
-% ylim([0 ylimup(n)])
-% ylabel('Norm. frequency')
-% %title(strcat(titletext2,', N=',num2str(length(h3var))));
 % legend(legendtext1,legendtext2);
 % set(gca,'FontSize',fontsize)
 % set(gca,'TickDir','out');
@@ -130,27 +112,62 @@ xlabeltext4 = 'Mitochondria AR [arb.u.]';
 % xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
 % yticks([0:ylimup(n)/12:ylimup(n)])
 % yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
+%}
 
-mitoarealogfig = figure('rend','painters','pos',[1700 100 300 300]);
+var2 = h11var;
+
+mitoareafig = figure('rend','painters','pos',[500 100 500 500]);
+n = 2;
+h3 = histogram(h9var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
+hold on
+h4 = histogram(var2,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
+xlim([xlimlow(n) xlimup(n)])
+xlabel(xlabeltext3)
+ylim([0 ylimup(n)])
+ylabel('Norm. frequency')
+%title(strcat(titletext2,', N=',num2str(length(h3var))));
+if var2(1) == h10var(1)
+    legend(legendtext1,legendtext2);
+elseif var2(1) == h11var(1)
+    legend(legendtext1,legendtext3);
+elseif var2(1) == h12var(1)
+    legend(legendtext1,legendtext4);
+end
+set(gca,'FontSize',fontsize)
+set(gca,'TickDir','out');
+xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
+xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
+yticks([0:ylimup(n)/12:ylimup(n)])
+yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
+
+mitoarealogfig = figure('rend','painters','pos',[1000 100 500 500]);
 n = 5; nbins = 20;
-[~,binedges] = histcounts(log10(h9var),nbins);
-histogram(h9var,10.^binedges,'Normalization','probability')
+[~,binedges] = histcounts(log10([h9var; h10var; h11var; h12var]),nbins);
+histogram(h9var,10.^binedges,'Normalization','probability','FaceColor',lightGray)
 hold on
 % [~,binedges] = histcounts(log10(h10var),nbins);
-% histogram(h10var,10.^binedges,'Normalization','probability')
+histogram(var2,10.^binedges,'Normalization','probability','FaceColor',darkGray)
 % [~,binedges] = histcounts(log10(h11var),nbins);
-histogram(h11var,10.^binedges,'Normalization','probability')
+% histogram(h11var,10.^binedges,'Normalization','probability')
 % [~,binedges] = histcounts(log10(h12var),nbins);
 % histogram(h12var,10.^binedges,'Normalization','probability')
 set(gca, 'xscale','log')
 ylabel('Norm. frequency')
-xlabel(xlabeltext2)
+xlabel(xlabeltext3)
 %title(strcat(titletext3,', N=',num2str(length(h5var))));
-% legend(legendtext1,legendtext2);
-legend('Control','GalacAmycin','GlucAmycin');
+if var2(1) == h10var(1)
+    legend(legendtext1,legendtext2);
+elseif var2(1) == h11var(1)
+    legend(legendtext1,legendtext3);
+elseif var2(1) == h12var(1)
+    legend(legendtext1,legendtext4);
+end
+% legend('Control','GalacAmycin','GlucAmycin');
 set(gca,'FontSize',fontsize)
 set(gca,'TickDir','out');
 
+[~,p] = kstest2(h9var,var2);
+disp(p)
 
 %{
 % Box plots

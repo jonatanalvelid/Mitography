@@ -6,7 +6,7 @@
 %
 %----------------------------
 %
-% Version: 200313
+% Version: 200317
 % New script to handle TMR data, with TMR binary maps, with a boolean
 % output variable saying if the mitochondria has TMR or not, and the
 % average TMR signal inside the mitochondria.
@@ -53,7 +53,7 @@ filenamePatchesBinary = '_PatchesBinaryAlternative.tif';
 % filenameallDend = '_DendritesBinary.tif';
 filenameallDend = '-AISBinary.tif';  % Use this if you named the files differently
 fileNumbers = 1:lastFileNumber;
-% fileNumbers = 8;
+% fileNumbers = 1;
 
 %% 
 %%% MITOCHONDRIA FITTING BELOW
@@ -64,7 +64,7 @@ for fileNum = fileNumbers
     filepathbottom = strFilepath(fileNum,filenamebottom,masterFolderPath);
     filepathpxs = strFilepath(fileNum,filenameallPxs,masterFolderPath);
     filepathmito = strFilepath(fileNum,filenameallMito,masterFolderPath);
-    filepathtmr = strFilepath(fileNum,filenameallMask,masterFolderPath);
+    filepathmask = strFilepath(fileNum,filenameallMask,masterFolderPath);
     filepathdend = strFilepath(fileNum,filenameallDend,masterFolderPath);
     filepathpatches = strFilepath(fileNum,filenamePatchesBinary,masterFolderPath);
     
@@ -550,7 +550,7 @@ filenamePatchesBinary = '_PatchesBinaryAlternative.tif';
 filenameNeuronBinary = '_NeuronBinary.tif';
 filenameSomaBinary = '_SomaBinary.tif';
 filenameAISBinary = '-AISBinary.tif';
-filenameTMR = '_TMR.tif';
+filenameTMRE = '-TMR.tif';
 
 for fileNum = fileNumbers
     
@@ -570,7 +570,7 @@ for fileNum = fileNumbers
     filepathMitoStrNum = strFilepath(fileNum,filenameMitoNumStr,masterFolderPath);
     filepathMitoNoDend = strFilepath(fileNum,filenameMitoNumDend,masterFolderPath);
     filepathpxs = strFilepath(fileNum,filenameallPxs,masterFolderPath);
-    filepathTMR = strFilepath(fileNum,filenameTMR,masterFolderPath);
+    filepathTMRE = strFilepath(fileNum,filenameTMRE,masterFolderPath);
     filepathMitoBinary = strFilepath(fileNum,filenameMitoBinary,masterFolderPath);
     filepathPatchesBinary = strFilepath(fileNum,filenamePatchesBinary,masterFolderPath);
     filepathNeuronBinary = strFilepath(fileNum,filenameNeuronBinary,masterFolderPath);
@@ -1034,22 +1034,94 @@ for fileNum = fileNumbers
             end
         end
         
-        %%% MITOCHONDRIA TMR CHECK AND FLAGGING
+        %%% MITOCHONDRIA TMRE CHECK AND FLAGGING
+        % Load TMRE image
+        imagetmre = imread(filepathTMRE);
+        % Load binary mitochondria image 
+        imagemitobinary = imread(filepathMitoBinary);
+        % Remove small objects and make labelled binary mitochondria image
+        % flip axes of imagemitobinary so numbering matches previous
+        % numbering in imageJ, i.e. in mitoAnalysis.text file
+        imjbinsizelim = 0.006;  % binary object size limit in ImageJ (OMP = 0.006 um^2)
+        imagemitobinary = bwareaopen(imagemitobinary,round(imjbinsizelim/pixelsize^2));
+        [labelmito, num] = bwlabel(imagemitobinary');
+        % flip axes back
+        labelmito = labelmito';
+        
+        % mark all mitochondria that are touching the border
+        imagemitobin = imbinarize(labelmito);
+        bordermitoimg = imagemitobin - imclearborder(imagemitobin);
+        labelbordermitoimg = labelmito .* bordermitoimg;
+        bordermito = unique(labelbordermitoimg);
+        bordermito(1) = [];  % remove 0 entry
+        for i = bordermito
+            dataAnalysis(i,110) = 1;
+        end
+
         if not(isempty(dataAnalysis))
             for i=1:sizeData(1)
-                % get binary area of single mitochondria
-                % sum TMR signal in this area
-                % get average TMR signal/pixel per mito, save to data (110)
-                tmrsignal
-                if insomaparam ~= 0
-                    dataAnalysis(i,109) = 1;
-                elseif insomaparam == 0
-                    dataAnalysis(i,109) = 1;
+                % get binary img of single mitochondria
+                singlemitobinary = ismember(labelmito, i);
+                % get a list of tmr pixels in this area
+                tmresignal = imagetmre(singlemitobinary);
+                % get average TMRE signal/pixel per mito, save to data (110)
+                tmresignalavg = mean(tmresignal);
+%                 borderbool = dataAnalysis(i,110);
+%                 if borderbool == 0
+                dataAnalysis(i,111) = tmresignalavg;
+%                 else
+%                     dataAnalysis(i,111) = nan;
+%                 end
+            end
+
+            %decide what is the limiting TMRE signal for positive/negative
+            %signal, and save another variable - boolean yes/no
+            % find thresh by double gaussian fit and find intersection
+            numgroups = round(3*sqrt(sizeData(1)));
+            tmrevals = dataAnalysis(:,111);
+            [cnts,edges] = histcounts(tmrevals,numgroups);
+            edges(end) = [];
+            cnts = cnts/max(cnts);
+            x = edges + (edges(2)-edges(1))/2;
+            [xData, yData] = prepareCurveData(x, cnts);
+
+            % Set up fittype and options.
+            % gaussian bkg + gaussian signal
+            ft = fittype( 'a*exp(-x/b)+a1*exp(-((x-b1)/c1)^2)', 'independent', 'x', 'dependent', 'y' );
+            opts = fitoptions( 'Method', 'NonlinearLeastSquares' );
+            opts.Display = 'Off';
+            opts.Lower = [0 0 0.3 max(tmrevals)*1/4 max(tmrevals)*1/8];
+            opts.StartPoint = [1 0.5 1 max(tmrevals)*1/2 max(tmrevals)*1/2];
+            opts.Upper = [10 1.5 10 max(tmrevals)*3/4 max(tmrevals)];
+
+            % Fit model to data.
+            [fitresult, gof] = fit(xData, yData, ft, opts);
+            cfs = coeffvalues(fitresult);
+            
+            % sample the space and get the fitted gaussians
+            stepsize = x(end)/max(2*max(tmrevals), 100);
+            xsampl = 0:stepsize:x(end);
+            % exp + gaussian
+            bkg = cfs(1).*exp(-xsampl./cfs(3));
+            signalgauss = cfs(2).*exp(-((xsampl-cfs(4))./cfs(5)).^2);
+            % compare gaussians and set threshold to where they cross
+            compsign = abs(bkg-signalgauss);
+            compsign = compsign(1:round(cfs(4)/stepsize));
+            [~,idx] = min(compsign);
+            threshsignal = xsampl(idx);
+            
+            % save boolean variable for which mito has TMR signal above
+            % thresh (signal) and which are below (no signal)
+            for i=1:sizeData(1)
+                tmresignal = dataAnalysis(i,111);
+                if tmresignal > threshsignal
+                    dataAnalysis(i,112) = 1;
+%                 elseif isnan(tmresignal)
+%                     dataAnalysis(i,112) = nan;
+                else
+                    dataAnalysis(i,112) = 0;
                 end
             end
-            
-            %decide what is the limiting TMR signal for positive/negative
-            %signal, and save another variable (111) - boolean yes/no
         end
         
         %%% ALL MITOCHONDRIA FITTING DATA AND PARAMETERS
