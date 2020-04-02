@@ -6,21 +6,46 @@ gray = [0.6 0.6 0.6];
 lightGray = [0.7 0.7 0.7];
 darkGray = [0.2 0.2 0.2];
 
-areathresh = 0.043;
+% % All mito
+% h1var = mitoWidtht(mitoTMREparam==1);  % All TMRE+ mito
+% h2var = mitoWidtht(mitoTMREparam==0);  % All TMRE- mito
+% h3var = mitoAreat(mitoTMREparam==1);  % All TMRE+ mito
+% h4var = mitoAreat(mitoTMREparam==0);  % All TMRE- mito
+% h5var = mitoLengtht(mitoTMREparam==1);  % All TMRE+ mito
+% h6var = mitoLengtht(mitoTMREparam==0);  % All TMRE- mito
 
-h1var = mitoWidth(mitoTMRE==1);  % All TMRE+ mito
-h2var = mitoWidth(mitoTMRE==0);  % All TMRE- mito
-h3var = mitoArea(mitoTMRE==1);  % All TMRE+ mito
-h4var = mitoArea(mitoTMRE==0);  % All TMRE- mito
-h5var = mitoLength(mitoTMRE==1);  % All TMRE+ mito
-h6var = mitoLength(mitoTMRE==0);  % All TMRE- mito
+mitoARt = mitoWidtht./mitoLengtht;
+
+%%{
+% Only take small mitos
+areathresh = 0.086;
+mitoWidthsmall = mitoWidtht(mitoAreat<areathresh);
+mitoWidthbig = mitoWidtht(mitoAreat>areathresh);
+mitoLengthsmall = mitoLengtht(mitoAreat<areathresh);
+mitoLengthbig = mitoLengtht(mitoAreat>areathresh);
+mitoAreasmall = mitoAreat(mitoAreat<areathresh);
+mitoAreabig = mitoAreat(mitoAreat>areathresh);
+mitoARsmall = mitoARt(mitoAreat<areathresh);
+mitoARbig = mitoARt(mitoAreat>areathresh);
+mitoTMREparamsmall = mitoTMREparam(mitoAreat<areathresh);
+mitoTMREparambig = mitoTMREparam(mitoAreat>areathresh);
+
+h1var = mitoWidthsmall(mitoTMREparamsmall==1);  % Small MitoSOX+ mito
+h2var = mitoWidthsmall(mitoTMREparamsmall==0);  % Small MitoSOX- mito
+h3var = mitoAreasmall(mitoTMREparamsmall==1);  % Small MitoSOX+ mito
+h4var = mitoAreasmall(mitoTMREparamsmall==0);  % Small MitoSOX- mito
+h5var = mitoLengthsmall(mitoTMREparamsmall==1);  % Small MitoSOX+ mito
+h6var = mitoLengthsmall(mitoTMREparamsmall==0);  % Small MitoSOX- mito
+h7var = mitoARsmall(mitoTMREparamsmall==1);  % Small MitoSOX+ mito
+h8var = mitoARsmall(mitoTMREparamsmall==0);  % Small MitoSOX- mito
+%%}
 
 boundlow = [0, 0, 0, 0];
-stepwidth = [0.015, 0.015, 0.04];
-boundup = [0.5, 0.5, 1];
+stepwidth = [0.015, 0.005, 0.04, 0.05];
+boundup = [0.4, 0.1, 1, 1];
 xlimlow = boundlow;
 xlimup = boundup;
-ylimup = [0.2, 0.3, 0.2];
+ylimup = [0.25, 0.2, 0.3, 0.3];
 
 fontsize = 12;
 opacity = 0.5;
@@ -32,6 +57,7 @@ legendtext2 = sprintf('TMRE-');
 xlabeltext1 = 'Mitochondria width [um]';
 xlabeltext2 = 'Mitochondria area [um^2]';
 xlabeltext3 = 'Mitochondria length [um]';
+xlabeltext4 = 'Mitochondria aspect ratio [arb.u.]';
 
 
 %%%,'FaceAlpha',opacity %%% If you want different opacity
@@ -103,6 +129,61 @@ disp(mean(h6var))
 disp(median(h5var))
 disp(median(h6var))
 disp(' ')
+
+mitoARfig = figure('rend','painters','pos',[900 100 300 300]);
+n = 4;
+h5 = histogram(h7var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
+hold on
+h6 = histogram(h8var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
+xlim([xlimlow(n) xlimup(n)])
+xlabel(xlabeltext4)
+ylim([0 ylimup(n)])
+ylabel('Norm. frequency')
+%title(strcat(titletext3,', N=',num2str(length(h5var))));
+legend(legendtext1,legendtext2);
+set(gca,'FontSize',fontsize)
+set(gca,'TickDir','out');
+xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
+xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
+yticks([0:ylimup(n)/12:ylimup(n)])
+yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
+disp(mean(h7var))
+disp(mean(h8var))
+disp(median(h7var))
+disp(median(h8var))
+disp(' ')
+
+%{
+% h1var = mitoMitoSOX(mitoLengthm>0.250);
+% h2var = mitoMitoSOX(mitoLengthm<0.250);
+h1var = mitoTMRE(mitoAreat>0.086);
+h2var = mitoTMRE(mitoAreat<0.086);
+[h,p]=kstest2(h1var,h2var);
+disp(p)
+
+x1=ones(length(h1var)).*(1+(rand(length(h1var))-0.5)/3);
+x2=ones(length(h2var)).*(1+(rand(length(h2var))-0.5)/6);
+markersize = 3;
+
+% Box plots
+hdouble = [h1var;h2var];
+groupings = [zeros(1,length(h1var)),ones(1,length(h2var))];
+widthboxplots = figure('rend','painters','pos',[100 100 300 400]);
+n = 1;
+h9 = boxplot(hdouble,groupings,'BoxStyle','outline','Colors',colors,'OutlierSize',4,'Symbol','','Widths',0.8);
+hold on
+f1=scatter(x1(:,1), h1var, markersize,'k','filled');
+f1.MarkerFaceAlpha = 1;
+f2=scatter(x2(:,2).*2, h2var, markersize,'k','filled');
+f2.MarkerFaceAlpha = f1.MarkerFaceAlpha;
+% xlim([xlimlow(n) xlimup(n)])
+set(gca,'FontSize',fontsize)
+set(gca,'TickDir','out');
+set(gca,'xticklabel',[])
+% set(gca,'ytick',[])
+% xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
+% xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
+%}
 
 %{
 % mitoarealogfig = figure('rend','painters','pos',[1700 100 300 300]);

@@ -7,34 +7,34 @@ lightGray = [0.7 0.7 0.7];
 darkGray = [0.2 0.2 0.2];
 
 h1var = mitoWidthm(mitoMitoSOXparam==0);  % All MitoSOX- mito
-h2var = mitoWidtht(mitoTMRE==0);  % All TMRE- mito
+h2var = mitoWidtht(mitoTMREparam==0);  % All TMRE- mito
 h3var = mitoAream(mitoMitoSOXparam==0);  % All MitoSOX- mito
-h4var = mitoAreat(mitoTMRE==0);  % All TMRE- mito
+h4var = mitoAreat(mitoTMREparam==0);  % All TMRE- mito
 h5var = mitoLengthm(mitoMitoSOXparam==0);  % All MitoSOX- mito
-h6var = mitoLengtht(mitoTMRE==0);  % All TMRE- mito
+h6var = mitoLengtht(mitoTMREparam==0);  % All TMRE- mito
 
-h1var = mitoWidthm(mitoMitoSOXparam==1);  % All MitoSOX+ mito
-h2var = mitoWidtht(mitoTMRE==1);  % All TMRE+ mito
-h3var = mitoAream(mitoMitoSOXparam==1);  % All MitoSOX+ mito
-h4var = mitoAreat(mitoTMRE==1);  % All TMRE+ mito
-h5var = mitoLengthm(mitoMitoSOXparam==1);  % All MitoSOX+ mito
-h6var = mitoLengtht(mitoTMRE==1);  % All TMRE+ mito
+% h1var = mitoWidthm(mitoMitoSOXparam==1);  % All MitoSOX+ mito
+% h2var = mitoWidtht(mitoTMREparam==1);  % All TMRE+ mito
+% h3var = mitoAream(mitoMitoSOXparam==1);  % All MitoSOX+ mito
+% h4var = mitoAreat(mitoTMREparam==1);  % All TMRE+ mito
+% h5var = mitoLengthm(mitoMitoSOXparam==1);  % All MitoSOX+ mito
+% h6var = mitoLengtht(mitoTMREparam==1);  % All TMRE+ mito
 
 boundlow = [0, 0, 0, 0];
 stepwidth = [0.01, 0.02, 0.04];
 boundup = [0.5, 0.5, 1];
 xlimlow = boundlow;
 xlimup = boundup;
-ylimup = [0.3, 0.1, 0.1];
+ylimup = [0.3, 0.5, 0.3];
 
 fontsize = 12;
 opacity = 0.5;
 
 % legendtext1 = 'All mito';
-% legendtext1 = sprintf('MitoSOX-');
-% legendtext2 = sprintf('TMRE-');
-legendtext1 = sprintf('MitoSOX+');
-legendtext2 = sprintf('TMRE+');
+legendtext1 = sprintf('MitoSOX-');
+legendtext2 = sprintf('TMRE-');
+% legendtext1 = sprintf('MitoSOX+');
+% legendtext2 = sprintf('TMRE+');
 
 xlabeltext1 = 'Mitochondria width [um]';
 xlabeltext2 = 'Mitochondria area [um^2]';
@@ -132,6 +132,7 @@ disp(' ')
 % set(gca,'FontSize',fontsize)
 % set(gca,'TickDir','out');
 
+%{
 h1var = mitoMitoSOX(mitoLengthm>0.250);
 h2var = mitoMitoSOX(mitoLengthm<0.250);
 % h1var = mitoMitoSOX(mitoAream>0.086);
@@ -161,6 +162,7 @@ set(gca,'xticklabel',[])
 % set(gca,'ytick',[])
 % xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
 % xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
+%}
 
 %{
 hdouble = [h3var;h4var];
