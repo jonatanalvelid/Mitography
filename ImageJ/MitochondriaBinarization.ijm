@@ -1,13 +1,12 @@
 // Binarize STED mitochondria image
 
 noImages = 1;
-outerproffactor = 3;
 //seems to be necessary in fixed samples where the membrane labeling is more dotty (OMP25 vs Tom20 rather than live vs fixed).
 omp25 = 1;  //only one of these two should be 1, the other 0
 tom20 = 0;  //only one of these two should be 1, the other 0
 allmito = 1;  //for counting all mito, or deleting the smallest and big ones for example, to get less noise
-localthreshold = 10;  //try local thresholding, Bernsen variant. Seems to work nicely on well-labelled OMP25 images.
-localthresholdmethod = "Bernsen";  //local thresholding method to use.
+localthreshold = 1;  //try local thresholding, Bernsen variant. Seems to work nicely on well-labelled OMP25 images.
+localthresholdmethod = "Phansalkar";  //local thresholding method to use.
 
 getPixelSize(unit, pixelWidth, pixelHeight);
 getDimensions(width, height, channels, slices, frames);
@@ -25,8 +24,8 @@ rename("MitoOriginalImageSoma");
 //Starting the analysis by binarizing the mitochondria image and calculating important parameters for them.
 selectWindow("MitoOriginalImageSoma");
 run("Duplicate...", "title=MitoOriginalImageSoma");
-rename("mitobinaryalt");
-selectWindow("mitobinaryalt");
+rename("mitobinaryaltraw");
+selectWindow("mitobinaryaltraw");
 if(tom20 == 1) {
 	run("Gaussian Blur...", "sigma=0.05 scaled");
 	if(localthreshold == 1) {
@@ -36,9 +35,20 @@ if(tom20 == 1) {
 		run("Fill Holes");
 	}
 } else if(omp25 == 1) {
-	run("Gaussian Blur...", "sigma=0.1 scaled"); //Try this, for the OMP25 labeling at least
+	run("Duplicate...", "title=mitobinaryalt2");
+	selectWindow("mitobinaryalt2");
+	run("Gaussian Blur...", "sigma=5 scaled");
+	setThreshold(3, 255);
+	run("Convert to Mask");
+	run("Make Binary");
+	run("Divide...", "value=255.000");
+	imageCalculator("Multiply create", "mitobinaryaltraw","mitobinaryalt2");
+	rename("mitobinaryalt");
 	if(localthreshold == 1) {
 		run("Auto Local Threshold", "method=" + localthresholdmethod + " radius=15 parameter_1=0 parameter_2=0 white");
+		run("Fill Holes");
+		run("Erode");
+		run("Dilate");
 	} else {
 		run("Make Binary");
 		run("Fill Holes");

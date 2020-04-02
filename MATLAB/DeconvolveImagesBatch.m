@@ -17,7 +17,7 @@ fwhmpsf = 70;  % FWHM of imaging PSF in nm
 functionFolder = fileparts(which('findFunctionFolders.m'));
 addpath(genpath(functionFolder));
 
-masterFolderPath = strcat(uigetdir('T:\Mitography'),'\');
+masterFolderPath = strcat(uigetdir('X:\Mitography\MitoSOX-MitographyAnalysis\Raw data'),'\');
 fileList = dir(fullfile(masterFolderPath, 'Image*.tif'));
 for i = 1:length(fileList)
     filenumbers(i) = str2num(fileList(i).name(7:9));
@@ -37,8 +37,8 @@ for fileNum = fileNumbers
         % Read the mitochondria image
         imgmito = imread(filepathmito);
         
-        % Deconvolve image
-        imgmitodecon = uint8(rldeconv(imgmito, fwhmpsf, px_size));
+        % Deconvolve image (after smoothing it to dampen noise in deconimg)
+        imgmitodecon = uint8(rldeconv(imgaussfilt(imgmito,0.8), fwhmpsf, px_size));
         
         disp(filepathmitosave)
         % Save deconvolved image

@@ -1,8 +1,13 @@
 function deconimg = rldeconv(imguint8_255, fwhmpsfnm, px_sizenm)
 sigmanm = fwhmpsfnm/2.355;
 sigma_psf_px = sigmanm/px_sizenm;
+
+% MitoSOX data
 niter = 10;
-dampar = 0.01;
+dampar = 1;
+% % TMRE data
+% niter = 10;
+% dampar = 0.01;
 
 img = im2double(imguint8_255)*255;
 psf = gauss2d(img, sigma_psf_px);

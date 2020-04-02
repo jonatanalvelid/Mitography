@@ -56,6 +56,7 @@ mitoLengthFiles = zeros(mitosPerFile,2,lastFileNumber);
 mitoAreaFiles = zeros(mitosPerFile,2,lastFileNumber);
 borderParamFiles = zeros(mitosPerFile,2,lastFileNumber);
 tmreParamFiles = zeros(mitosPerFile,2,lastFileNumber);
+tmrevalFiles = zeros(mitosPerFile,2,lastFileNumber);
 
 for fileNum = fileNumbers
     if fileNum < 10
@@ -73,6 +74,7 @@ for fileNum = fileNumbers
         lengthSkelMito = data(1:end,7); %Skeleton mitochondria length (skeleton part closest to the mitochondria centroid)
         widthMito = data(1:end,8);
         borderparam = data(1:end,110);
+        tmreval = data(1:end,111);
         tmreparam = data(1:end,112);
         if paramPlots
             extraparam = data(1:end,paramCol);
@@ -92,6 +94,8 @@ for fileNum = fileNumbers
             borderParamFiles(i,2,fileNum) = borderparam(i);
             tmreParamFiles(i,1,fileNum) = i;
             tmreParamFiles(i,2,fileNum) = tmreparam(i);
+            tmrevalFiles(i,1,fileNum) = i;
+            tmrevalFiles(i,2,fileNum) = tmreval(i);
             if paramPlots 
                 extraParamFiles(i,1,fileNum) = i;
                 extraParamFiles(i,2,fileNum) = extraparam(i);
@@ -106,16 +110,19 @@ mitoWidth = [];
 mitoLength = [];
 mitoArea = [];
 mitoTMRE = [];
+mitoTMREparam = [];
 
 mitoWidthP = [];
 mitoLengthP = [];
 mitoAreaP = [];
 mitoTMREP = [];
+mitoTMREparamP = [];
 
 mitoWidthNP = [];
 mitoLengthNP = [];
 mitoAreaNP = [];
 mitoTMRENP = [];
+mitoTMREparamNP = [];
 
 
 for fileNum=fileNumbers
@@ -124,19 +131,22 @@ for fileNum=fileNumbers
             mitoWidth = [mitoWidth; mitoWidthFiles(i,2,fileNum)];
             mitoArea = [mitoArea; mitoAreaFiles(i,2,fileNum)];
             mitoLength = [mitoLength; mitoLengthFiles(i,2,fileNum)];
-            mitoTMRE = [mitoTMRE; tmreParamFiles(i,2,fileNum)];
+            mitoTMRE = [mitoTMRE; tmrevalFiles(i,2,fileNum)];
+            mitoTMREparam = [mitoTMREparam; tmreParamFiles(i,2,fileNum)];
             if paramPlots
                 if extraParamFiles(i,2,fileNum) == 1
                     disp(['Image: ' int2str(fileNum) ', mito: ' int2str(i)])
                     mitoWidthP = [mitoWidthP; mitoWidthFiles(i,2,fileNum)];
                     mitoAreaP = [mitoAreaP; mitoAreaFiles(i,2,fileNum)];
                     mitoLengthP = [mitoLengthP; mitoLengthFiles(i,2,fileNum)];
-                    mitoTMREP = [mitoTMREP; tmreParamFiles(i,2,fileNum)];
+                    mitoTMREP = [mitoTMREP; tmrevalFiles(i,2,fileNum)];
+                    mitoTMREparamP = [mitoTMREparamP; tmreParamFiles(i,2,fileNum)];
                 elseif extraParamFiles(i,2,fileNum) == 0
                     mitoWidthNP = [mitoWidthNP; mitoWidthFiles(i,2,fileNum)];
                     mitoAreaNP = [mitoAreaNP; mitoAreaFiles(i,2,fileNum)];
                     mitoLengthNP = [mitoLengthNP; mitoLengthFiles(i,2,fileNum)];
-                    mitoTMRENP = [mitoTMRENP; tmreParamFiles(i,2,fileNum)];
+                    mitoTMRENP = [mitoTMRENP; tmrevalFiles(i,2,fileNum)];
+                    mitoTMREparamNP = [mitoTMREparamNP; tmreParamFiles(i,2,fileNum)];
                 end
             end
         end
