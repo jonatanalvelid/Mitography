@@ -1,14 +1,9 @@
-%%% FIT AND GET ALL THE MITOCHONDRIA LINE PROFILE WIDTHS.
-%%% - Pick out all the small mitochondria, <100nm in size or some similar
-%%% threshold, and save these numbers in a separate file. 
-% This version: Fix the way the mitochondria length is taken. Instead of
-% the maximum between ellipse and skeleton, always take the ellipsoidal
-% length if the area A < 0.2 µm2, as all those mitochondria are necessarily
-% small and ellipsoidally shaped anyway. 
-%
-% Latest addition (200403): Save also single peak/double peak widht fit
-% param from txt file in a variable. Use this to possible split up the
-% data, for small MDVS, big MDVs, and sticks.
+%%% 
+% TMRE version
+% -------------
+% Latest addition (200414): Save paramaeters from each image separately in
+% a struct for each variable (width, length, etc.).
+%%%
 
 % Add function folder to filepath, so that those functions can be read.
 functionFolder = fileparts(which('findFunctionFolders.m'));
@@ -124,14 +119,15 @@ for fileNum = fileNumbers
     end  
 end
 
-mitoWidth = [];
-mitoLength = [];
-mitoAR = [];
-mitoArea = [];
-mitoTMRE = [];
-mitoTMREparam = [];
-mitodoublepeakparam = [];
+mitoWidth = struct;
+mitoLength = struct;
+mitoAR = struct;
+mitoArea = struct;
+mitoTMRE = struct;
+mitoTMREparam = struct;
+mitodoublepeakparam = struct;
 
+%{
 mitoWidthP = [];
 mitoLengthP = [];
 mitoARP = [];
@@ -147,22 +143,32 @@ mitoAreaNP = [];
 mitoTMRENP = [];
 mitoTMREparamNP = [];
 mitodoublepeakparamNP = [];
+%}
 
 
 for fileNum=fileNumbers
+    mitoWidthtemp = [];
+    mitoLengthtemp = [];
+    mitoARtemp = [];
+    mitoAreatemp = [];
+    mitoTMREtemp = [];
+    mitoTMREparamtemp = [];
+    mitodoublepeakparamtemp = [];
     for i=1:mitosPerFile
         if mitoWidthFiles(i,2,fileNum) ~= 0
             ARtemp = mitoWidthFiles(i,2,fileNum)/mitoLengthFiles(i,2,fileNum);
             if ARtemp > 1
                 ARtemp = 1/ARtemp;
             end
-            mitoWidth = [mitoWidth; mitoWidthFiles(i,2,fileNum)];
-            mitoArea = [mitoArea; mitoAreaFiles(i,2,fileNum)];
-            mitoLength = [mitoLength; mitoLengthFiles(i,2,fileNum)];
-            mitoAR = [mitoAR; ARtemp];
-            mitoTMRE = [mitoTMRE; tmrevalFiles(i,2,fileNum)];
-            mitoTMREparam = [mitoTMREparam; tmreParamFiles(i,2,fileNum)];
-            mitodoublepeakparam = [mitodoublepeakparam; doublepeakfitFiles(i,2,fileNum)];
+            mitoWidthtemp = [mitoWidthtemp; mitoWidthFiles(i,2,fileNum)];
+            mitoAreatemp = [mitoAreatemp; mitoAreaFiles(i,2,fileNum)];
+            mitoLengthtemp = [mitoLengthtemp; mitoLengthFiles(i,2,fileNum)];
+            mitoARtemp = [mitoARtemp; ARtemp];
+            mitoTMREtemp = [mitoTMREtemp; tmrevalFiles(i,2,fileNum)];
+            mitoTMREparamtemp = [mitoTMREparamtemp; tmreParamFiles(i,2,fileNum)];
+            mitodoublepeakparamtemp = [mitodoublepeakparamtemp; doublepeakfitFiles(i,2,fileNum)];
+            
+            %{
             if paramPlots
                 if extraParamFiles(i,2,fileNum) == 1
                     disp(['Image: ' int2str(fileNum) ', mito: ' int2str(i)])
@@ -183,8 +189,18 @@ for fileNum=fileNumbers
                     mitodoublepeakparamNP = [mitodoublepeakparamNP; doublepeakfitFiles(i,2,fileNum)];
                 end
             end
+            %}
         end
     end 
+    if ~isempty(mitoWidthtemp)
+        mitoWidth.(sprintf('Image%d',fileNum)) = mitoWidthtemp;
+        mitoArea.(sprintf('Image%d',fileNum)) = mitoAreatemp;
+        mitoLength.(sprintf('Image%d',fileNum)) = mitoLengthtemp;
+        mitoAR.(sprintf('Image%d',fileNum)) = mitoARtemp;
+        mitoTMRE.(sprintf('Image%d',fileNum)) = mitoTMREtemp;
+        mitoTMREparam.(sprintf('Image%d',fileNum)) = mitoTMREparamtemp;
+        mitodoublepeakparam.(sprintf('Image%d',fileNum)) = mitodoublepeakparamtemp;
+    end
 end
 
 clearvars -except mitoWidth mitoArea mitoLength mitoAR mitoTMRE mitoTMREparam mitodoublepeakparam

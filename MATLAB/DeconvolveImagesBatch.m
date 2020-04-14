@@ -17,7 +17,7 @@ fwhmpsf = 70;  % FWHM of imaging PSF in nm
 functionFolder = fileparts(which('findFunctionFolders.m'));
 addpath(genpath(functionFolder));
 
-masterFolderPath = strcat(uigetdir('X:\Mitography\MitoSOX-MitographyAnalysis\Raw data'),'\');
+masterFolderPath = strcat(uigetdir('X:\Mitography\OXPHOS-MitographyAnalysis\Raw data X\Test'),'\');
 fileList = dir(fullfile(masterFolderPath, 'Image*.tif'));
 for i = 1:length(fileList)
     filenumbers(i) = str2num(fileList(i).name(7:9));
@@ -25,6 +25,7 @@ end
 lastFileNumber = max(filenumbers);
 
 fileNumbers = 1:lastFileNumber;
+% fileNumbers = 1:3;
 
 filenameallmito = '-Mitochondria.tif';
 filenameallmitosave = '-MitochondriaRL.tif';

@@ -27,7 +27,7 @@ run("Duplicate...", "title=MitoOriginalImageSoma");
 rename("mitobinaryaltraw");
 selectWindow("mitobinaryaltraw");
 if(tom20 == 1) {
-	run("Gaussian Blur...", "sigma=0.05 scaled");
+	run("Gaussian Blur...", "sigma=0.06 scaled");
 	if(localthreshold == 1) {
 		run("Auto Local Threshold", "method=" + localthresholdmethod + " radius=15 parameter_1=0 parameter_2=0 white");
 	} else {
@@ -35,20 +35,22 @@ if(tom20 == 1) {
 		run("Fill Holes");
 	}
 } else if(omp25 == 1) {
-	run("Duplicate...", "title=mitobinaryalt2");
+	run("Duplicate...", "title=mitobinaryaltraw");
+	rename("mitobinaryalt2");
 	selectWindow("mitobinaryalt2");
-	run("Gaussian Blur...", "sigma=5 scaled");
+	run("Gaussian Blur...", "sigma=0.15 scaled");
 	setThreshold(3, 255);
 	run("Convert to Mask");
 	run("Make Binary");
 	run("Divide...", "value=255.000");
 	imageCalculator("Multiply create", "mitobinaryaltraw","mitobinaryalt2");
 	rename("mitobinaryalt");
+	run("Gaussian Blur...", "sigma=0.03 scaled");
 	if(localthreshold == 1) {
 		run("Auto Local Threshold", "method=" + localthresholdmethod + " radius=15 parameter_1=0 parameter_2=0 white");
-		run("Fill Holes");
-		run("Erode");
-		run("Dilate");
+		//run("Fill Holes");
+		//run("Erode");
+		//run("Dilate");
 	} else {
 		run("Make Binary");
 		run("Fill Holes");
@@ -57,42 +59,42 @@ if(tom20 == 1) {
 selectWindow("mitobinaryalt");
 rename("mitobinary");
 selectWindow("mitobinary");
+//
+//if(allmito == 1) {
+//	if(tom20 == 1) {
+//		run("Analyze Particles...", "size=0.015-Infinity display clear include add"); //for counting all, big and small MDVs
+//	} else if(omp25 == 1) {
+//		run("Analyze Particles...", "size=0.003-Infinity display clear include add"); //for counting all, big and small MDVs
+//	}
+//} else if(allmito == 0) {
+//	//run("Analyze Particles...", "size=0.08-3.00 display exclude clear include add"); - for normal
+//	//run("Analyze Particles...", "size=0.08-Infinity display exclude clear include add"); //for getting all the mitochondria areas, also the big ones
+//	//run("Analyze Particles...", "size=0.02-Infinity display exclude clear include add"); //for getting all the mitochondria areas, also the big and small ones
+//	run("Analyze Particles...", "size=0.08-Infinity display exclude clear include add"); //for confocal
+//}
+//updateResults; 
 
-if(allmito == 1) {
-	if(tom20 == 1) {
-		run("Analyze Particles...", "size=0.015-Infinity display clear include add"); //for counting all, big and small MDVs
-	} else if(omp25 == 1) {
-		run("Analyze Particles...", "size=0.003-Infinity display clear include add"); //for counting all, big and small MDVs
-	}
-} else if(allmito == 0) {
-	//run("Analyze Particles...", "size=0.08-3.00 display exclude clear include add"); - for normal
-	//run("Analyze Particles...", "size=0.08-Infinity display exclude clear include add"); //for getting all the mitochondria areas, also the big ones
-	//run("Analyze Particles...", "size=0.02-Infinity display exclude clear include add"); //for getting all the mitochondria areas, also the big and small ones
-	run("Analyze Particles...", "size=0.08-Infinity display exclude clear include add"); //for confocal
-}
-updateResults; 
-
-selectWindow("mitobinary");
-run("Duplicate...", "title=mitobinary2");
-selectWindow("mitobinary2");
-if(allmito == 1) {
-	if(tom20 == 1) {
-		run("Analyze Particles...", "size=0.015-Infinity display clear include add"); //for counting all, big and small MDVs
-	} else if(omp25 == 1) {
-		run("Analyze Particles...", "size=0.003-Infinity display clear include add"); //for counting all, big and small MDVs
-	}
-} else if(allmito == 0) {
-	//run("Analyze Particles...", "size=0.08-3.00 display exclude clear include add"); - for normal
-	//run("Analyze Particles...", "size=0.08-Infinity display exclude clear include add"); //for getting all the mitochondria areas, also the big ones
-	//run("Analyze Particles...", "size=0.02-Infinity display exclude clear include add"); //for getting all the mitochondria areas, also the big and small ones
-	run("Analyze Particles...", "size=0.08-Infinity display exclude clear include add"); //for confocal
-}
-run("Flatten");
-
-length1 = nResults();
-
-wait(200);
-selectWindow("mitobinary");
-
-run("Close");
-run("Close");
+//selectWindow("mitobinary");
+//run("Duplicate...", "title=mitobinary2");
+//selectWindow("mitobinary2");
+//if(allmito == 1) {
+//	if(tom20 == 1) {
+//		run("Analyze Particles...", "size=0.015-Infinity display clear include add"); //for counting all, big and small MDVs
+//	} else if(omp25 == 1) {
+//		run("Analyze Particles...", "size=0.003-Infinity display clear include add"); //for counting all, big and small MDVs
+//	}
+//} else if(allmito == 0) {
+//	//run("Analyze Particles...", "size=0.08-3.00 display exclude clear include add"); - for normal
+//	//run("Analyze Particles...", "size=0.08-Infinity display exclude clear include add"); //for getting all the mitochondria areas, also the big ones
+//	//run("Analyze Particles...", "size=0.02-Infinity display exclude clear include add"); //for getting all the mitochondria areas, also the big and small ones
+//	run("Analyze Particles...", "size=0.08-Infinity display exclude clear include add"); //for confocal
+//}
+//run("Flatten");
+//
+//length1 = nResults();
+//
+//wait(200);
+//selectWindow("mitobinary");
+//
+//run("Close");
+//run("Close");
