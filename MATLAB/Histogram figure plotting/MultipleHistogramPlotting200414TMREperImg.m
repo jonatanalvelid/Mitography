@@ -1,12 +1,12 @@
 %%% MULTIPLE HISTOGRAM PLOTTING
 % Dataset: \\X:\Mitography\MitoSOX-MitographyAnalysis\mitoData-RL-200414-perImg.mat
 
-colors = lines(12);
+colors = lines(24);
 gray = [0.6 0.6 0.6];
 lightGray = [0.7 0.7 0.7];
 darkGray = [0.2 0.2 0.2];
 
-n = 1;
+n = 2;
 
 if n==1
     % Take all mitos - Width
@@ -27,12 +27,22 @@ h3var = mitotempvar.(sprintf('Image%d',3));  % All mito
 h4var = mitotempvar.(sprintf('Image%d',4));  % All mito
 h5var = mitotempvar.(sprintf('Image%d',5));  % All mito
 h6var = mitotempvar.(sprintf('Image%d',6));  % All mito
-h7var = mitotempvar.(sprintf('Image%d',7));  % All mito
-h8var = mitotempvar.(sprintf('Image%d',8));  % All mito
 h9var = mitotempvar.(sprintf('Image%d',9));  % All mito
 h10var = mitotempvar.(sprintf('Image%d',10));  % All mito
 h11var = mitotempvar.(sprintf('Image%d',11));  % All mito
 h12var = mitotempvar.(sprintf('Image%d',12));  % All mito
+h13var = mitotempvar.(sprintf('Image%d',13));  % All mito
+h14var = mitotempvar.(sprintf('Image%d',14));  % All mito
+h15var = mitotempvar.(sprintf('Image%d',15));  % All mito
+h16var = mitotempvar.(sprintf('Image%d',16));  % All mito
+h17var = mitotempvar.(sprintf('Image%d',17));  % All mito
+h18var = mitotempvar.(sprintf('Image%d',18));  % All mito
+h19var = mitotempvar.(sprintf('Image%d',19));  % All mito
+h20var = mitotempvar.(sprintf('Image%d',20));  % All mito
+h21var = mitotempvar.(sprintf('Image%d',21));  % All mito
+h22var = mitotempvar.(sprintf('Image%d',22));  % All mito
+h23var = mitotempvar.(sprintf('Image%d',23));  % All mito
+h24var = mitotempvar.(sprintf('Image%d',24));  % All mito
 
 %{
 % Only take small mitos
@@ -82,12 +92,22 @@ h3 = histogram(h3var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probab
 h4 = histogram(h4var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(4,:));
 h5 = histogram(h5var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(5,:));
 h6 = histogram(h6var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(6,:));
-h7 = histogram(h7var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(7,:));
-h8 = histogram(h8var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(8,:));
 h9 = histogram(h9var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(9,:));
 h10 = histogram(h10var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(10,:));
 h11 = histogram(h11var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(11,:));
 h12 = histogram(h12var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(12,:));
+h13 = histogram(h13var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(13,:));
+h14 = histogram(h14var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(14,:));
+h15 = histogram(h15var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(15,:));
+h16 = histogram(h16var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(16,:));
+h17 = histogram(h17var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(17,:));
+h18 = histogram(h18var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(18,:));
+h19 = histogram(h19var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(19,:));
+h20 = histogram(h20var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(20,:));
+h21 = histogram(h21var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(21,:));
+h22 = histogram(h22var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(22,:));
+h23 = histogram(h23var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(23,:));
+h24 = histogram(h24var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(24,:));
 xlim([xlimlow(n) xlimup(n)])
 xlabel(xlabeltext(n))
 ylim([0 ylimup(n)])
@@ -101,15 +121,18 @@ xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(
 yticks([0:ylimup(n)/12:ylimup(n)])
 yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
 
-hmat = nan(12,12);
-pmat = nan(12,12);
-for n = 1:12
-    for m = 1:12
+hmat = nan(24,24);
+pmat = nan(24,24);
+for n = [1:6,9:24]
+    for m = [1:6,9:24]
         [h,p] = kstest2(eval(sprintf('h%dvar',n)),eval(sprintf('h%dvar',m)));
         hmat(n,m) = h;
         pmat(n,m) = p;
     end
 end
+
+figure()
+bar3(hmat)
 
 %{
 % mitoarealogfig = figure('rend','painters','pos',[1700 100 300 300]);

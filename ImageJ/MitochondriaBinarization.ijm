@@ -6,7 +6,7 @@ omp25 = 1;  //only one of these two should be 1, the other 0
 tom20 = 0;  //only one of these two should be 1, the other 0
 allmito = 1;  //for counting all mito, or deleting the smallest and big ones for example, to get less noise
 localthreshold = 1;  //try local thresholding, Bernsen variant. Seems to work nicely on well-labelled OMP25 images.
-localthresholdmethod = "Phansalkar";  //local thresholding method to use.
+localthresholdmethod = "Bernsen";  //local thresholding method to use.
 
 getPixelSize(unit, pixelWidth, pixelHeight);
 getDimensions(width, height, channels, slices, frames);
@@ -35,22 +35,27 @@ if(tom20 == 1) {
 		run("Fill Holes");
 	}
 } else if(omp25 == 1) {
+	run("Gaussian Blur...", "sigma=0.03 scaled");
 	run("Duplicate...", "title=mitobinaryaltraw");
 	rename("mitobinaryalt2");
 	selectWindow("mitobinaryalt2");
-	run("Gaussian Blur...", "sigma=0.15 scaled");
-	setThreshold(3, 255);
+	setThreshold(12, 255);
 	run("Convert to Mask");
 	run("Make Binary");
 	run("Divide...", "value=255.000");
 	imageCalculator("Multiply create", "mitobinaryaltraw","mitobinaryalt2");
 	rename("mitobinaryalt");
-	run("Gaussian Blur...", "sigma=0.03 scaled");
+	//run("Gaussian Blur...", "sigma=0.08 scaled");
 	if(localthreshold == 1) {
-		run("Auto Local Threshold", "method=" + localthresholdmethod + " radius=15 parameter_1=0 parameter_2=0 white");
+		localradius = 12;
+		contrastthresh = 3;
+		selectWindow("mitobinaryalt");
+		run("Duplicate...", "title=mitobinaryalt");
+		rename("bernsen");
+		run("Auto Local Threshold", "method=" + localthresholdmethod + " radius=" + localradius + " parameter_1=" + contrastthresh + " parameter_2=0 white");
 		//run("Fill Holes");
-		//run("Erode");
-		//run("Dilate");
+		run("Erode");
+		run("Dilate");
 	} else {
 		run("Make Binary");
 		run("Fill Holes");
@@ -59,6 +64,8 @@ if(tom20 == 1) {
 selectWindow("mitobinaryalt");
 rename("mitobinary");
 selectWindow("mitobinary");
+
+
 //
 //if(allmito == 1) {
 //	if(tom20 == 1) {
