@@ -6,18 +6,37 @@ gray = [0.6 0.6 0.6];
 lightGray = [0.7 0.7 0.7];
 darkGray = [0.2 0.2 0.2];
 
-% % All mito
-%{
+%%% NOT NEEDED ANYMORE, DO THIS IN RESULTS SCRIPT INSTEAD
+mitoARt = mitoWidtht./mitoLengtht;
+mitoARm = mitoWidthm./mitoLengthm;
+% If AR is >1, just invert it, as the axises have been mixed up
+for i=1:length(mitoARt)
+    if mitoARt(i) > 1
+        mitoARt(i) = 1/mitoARt(i);
+    end
+end
+for i=1:length(mitoARm)
+    if mitoARm(i) > 1
+        mitoARm(i) = 1/mitoARm(i);
+    end
+end
+
+% All mito
+%%{
 areathresh = 0.086;
-mitoWidthttemp = mitoWidtht(mitoTMREparam==1 & mitoAreat<areathresh);  % 
-mitoWidthmtemp = mitoWidthm(mitoMitoSOXparam==1 & mitoAream<areathresh);  % 
-mitoAreattemp = mitoAreat(mitoTMREparam==1 & mitoAreat<areathresh);  % 
-mitoAreamtemp = mitoAream(mitoMitoSOXparam==1 & mitoAream<areathresh);  %
-mitoLengthttemp = mitoLengtht(mitoTMREparam==1 & mitoAreat<areathresh);  % 
-mitoLengthmtemp = mitoLengthm(mitoMitoSOXparam==1 & mitoAream<areathresh);  %
-mitoARttemp = mitoARt(mitoTMREparam==1 & mitoAreat<areathresh);  % 
-mitoARmtemp = mitoARm(mitoMitoSOXparam==1 & mitoAream<areathresh);  % 
+ARthresh = 0.5;
+mitoWidthttemp = mitoWidtht(mitoARt>ARthresh & mitoAreat<areathresh);  % 
+mitoWidthmtemp = mitoWidthm(mitoARm>ARthresh & mitoAream<areathresh);  % 
+mitoAreattemp = mitoAreat(mitoARt>ARthresh & mitoAreat<areathresh);  % 
+mitoAreamtemp = mitoAream(mitoARm>ARthresh & mitoAream<areathresh);  %
+mitoLengthttemp = mitoLengtht(mitoARt>ARthresh & mitoAreat<areathresh);  % 
+mitoLengthmtemp = mitoLengthm(mitoARm>ARthresh & mitoAream<areathresh);  %
+mitoARttemp = mitoARt(mitoARt>ARthresh & mitoAreat<areathresh);  % 
+mitoARmtemp = mitoARm(mitoARm>ARthresh & mitoAream<areathresh);  %
+mitoTMREparamtemp = mitoTMREparam(mitoARt>ARthresh & mitoAreat<areathresh);  % All area-small AR-small mito
+mitoMitoSOXparamtemp = mitoMitoSOXparam(mitoARm>ARthresh & mitoAream<areathresh);  % All area-small AR-small mito
 %}
+%{
 mitoWidthttemp = mitoWidthm;  % 
 mitoWidthmtemp = mitoWidtht;  % 
 mitoAreattemp = mitoAream;  % 
@@ -26,17 +45,8 @@ mitoLengthttemp = mitoLengthm;  %
 mitoLengthmtemp = mitoLengtht;  %
 mitoARttemp = mitoARm;  % 
 mitoARmtemp = mitoARt;  % 
+%}
 
-
-%%% NOT NEEDED ANYMORE, DO THIS IN RESULTS SCRIPT INSTEAD
-% mitoARt = mitoWidtht./mitoLengtht;
-% % If AR is >1, just invert it, as the axises have been mixed up
-% for i=1:length(mitoARt)
-%     if mitoARt(i) > 1
-%         mitoARt(i) = 1/mitoARt(i);
-%     end
-% end
-% mitoARtemp = mitoARt(mitoTMREparam==0 & mitoAreat<areathresh);  % All TMRE- and small mito
 
 %{
 % Split small-small and small-big mitos
@@ -103,28 +113,28 @@ h6var = mitoLengthmbig;  % Big MitoSOX- mito
 h7var = mitoARtbig;  % Big TMRE- mito
 h8var = mitoARmbig;  % Big MitoSOX- mito
 %}
-h1var = mitoWidthttemp;  % All TMRE+ mito below conf lim
-h2var = mitoWidthmtemp;  % All MitoSOX+ mito below conf lim
-h3var = mitoAreattemp;  % All TMRE+ mito below conf lim
-h4var = mitoAreamtemp;  % All MitoSOX+ mito below conf lim
-h5var = mitoLengthttemp;  % All TMRE+ mito below conf lim
-h6var = mitoLengthmtemp;  % All MitoSOX+ mito below conf lim
-h7var = mitoARttemp;  % All TMRE+ mito below conf lim
-h8var = mitoARmtemp;  % All MitoSOX+ mito below conf lim
+h1var = mitoWidthttemp(mitoTMREparamtemp==1);  % All TMRE+ MDVs below conf lim
+h2var = mitoWidthmtemp(mitoMitoSOXparamtemp==0);  % All MitoSOX- MDVs below conf lim
+h3var = mitoAreattemp(mitoTMREparamtemp==1);  % All TMRE+ MDVs below conf lim
+h4var = mitoAreamtemp(mitoMitoSOXparamtemp==0);  % All MitoSOX- MDVs below conf lim
+h5var = mitoLengthttemp(mitoTMREparamtemp==1);  % All TMRE+ MDVs below conf lim
+h6var = mitoLengthmtemp(mitoMitoSOXparamtemp==0);  % All MitoSOX- MDVs below conf lim
+h7var = mitoARttemp(mitoTMREparamtemp==1);  % All TMRE+ MDVs below conf lim
+h8var = mitoARmtemp(mitoMitoSOXparamtemp==0);  % All MitoSOX- MDVs below conf lim
 
 boundlow = [0, 0, 0, 0];
-stepwidth = [0.015, 0.05, 0.1, 0.04];
-boundup = [0.5, 3, 5, 1];
+stepwidth = [0.025, 0.009, 0.04, 0.066];
+boundup = [0.4, 0.1, 0.6, 1];
 xlimlow = boundlow;
 xlimup = boundup;
-ylimup = [0.2, 0.2, 0.3, 0.2];
+ylimup = [0.5, 0.4, 0.4, 0.5];
 
 fontsize = 12;
 opacity = 0.5;
 
 % legendtext1 = 'All mito';
-legendtext1 = sprintf('All mito (MitoSOX)');
-legendtext2 = sprintf('All mito (TMRE)');
+legendtext1 = sprintf('TMRE+');
+legendtext2 = sprintf('MitoSOX-');
 
 xlabeltext1 = 'Mitochondria width [um]';
 xlabeltext2 = 'Mitochondria area [um^2]';

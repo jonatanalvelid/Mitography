@@ -6,7 +6,7 @@ gray = [0.6 0.6 0.6];
 lightGray = [0.7 0.7 0.7];
 darkGray = [0.2 0.2 0.2];
 
-n = 1;
+n = 2;
 
 if n==1
     % Take all mitos - Width

@@ -1,5 +1,5 @@
 %%% MULTIPLE HISTOGRAM PLOTTING
-% Dataset: \\X:\TestaLab\Mitography\TMR-MitographyAnalysis\mitoData-RL-200317.mat
+% Dataset: \\X:\TestaLab\Mitography\TMR-MitographyAnalysis\mitoData-RL-200403-doublepeakAR.mat
 
 colors = lines(2);
 gray = [0.6 0.6 0.6];
@@ -7,6 +7,7 @@ lightGray = [0.7 0.7 0.7];
 darkGray = [0.2 0.2 0.2];
 
 % % All mito
+%{
 areathresh = 0.086;
 % h1var = mitoWidtht(mitoTMREparam==1);  % All TMRE+ mito
 mitoWidthtemp = mitoWidtht(mitoTMREparam==0 & mitoAreat<areathresh);  % All TMRE- and small mito
@@ -17,7 +18,22 @@ mitoLengthtemp = mitoLengtht(mitoTMREparam==0 & mitoAreat<areathresh);  % All TM
 % h5var = mitoARt(mitoTMREparam==1);  % All TMRE+ mito
 mitoARtemp = mitoARt(mitoTMREparam==0 & mitoAreat<areathresh);  % All TMRE- and small mito
 mitodoublepeakparamtemp = mitodoublepeakparamt(mitoTMREparam==0 & mitoAreat<areathresh);  % All TMRE- and small mito
+%}
+%%{
+areathresh = 0.086;
+ARthresh1 = 0.5;
+% h1var = mitoWidtht(mitoTMREparam==1);  % All TMRE+ mito
+mitoWidthtemp = mitoWidtht(mitoARt<ARthresh1 & mitoAreat<areathresh);  % All area-small AR-small mito
+% h3var = mitoAreat(mitoTMREparam==1);  % All TMRE+ mito
+mitoAreatemp = mitoAreat(mitoARt<ARthresh1 & mitoAreat<areathresh);  % All area-small AR-small mito
+% h5var = mitoLengtht(mitoTMREparam==1);  % All TMRE+ mito
+mitoLengthtemp = mitoLengtht(mitoARt<ARthresh1 & mitoAreat<areathresh);  % All area-small AR-small mito
+% h5var = mitoARt(mitoTMREparam==1);  % All TMRE+ mito
+mitoARtemp = mitoARt(mitoARt<ARthresh1 & mitoAreat<areathresh);  % All area-small AR-small mito
+mitoTMREparamtemp = mitoTMREparam(mitoARt<ARthresh1 & mitoAreat<areathresh);  % All area-small AR-small mito
 
+%}
+%{
 %%% NOT NEEDED ANYMORE, DO THIS IN RESULTS SCRIPT INSTEAD
 % mitoARt = mitoWidtht./mitoLengtht;
 % % If AR is >1, just invert it, as the axises have been mixed up
@@ -27,10 +43,9 @@ mitodoublepeakparamtemp = mitodoublepeakparamt(mitoTMREparam==0 & mitoAreat<area
 %     end
 % end
 % mitoARtemp = mitoARt(mitoTMREparam==0 & mitoAreat<areathresh);  % All TMRE- and small mito
-
-%%{
-% Split small-small and small-big mitos
-areathresh1 = 0.04;
+%}
+%{
+%areathresh1 = 0.04;
 areathresh2 = 0.086;
 mitoWidthsmall = mitoWidthtemp(mitoAreatemp<areathresh1);
 mitoWidthbig = mitoWidthtemp(mitoAreatemp>areathresh1 & mitoAreatemp<areathresh2);
@@ -43,7 +58,6 @@ mitoARbig = mitoARtemp(mitoAreatemp>areathresh1 & mitoAreatemp<areathresh2);
 %}
 %{
 % Split small-ARsmall and small-ARbig mitos
-ARthresh1 = 0.5;
 mitoWidthsmall = mitoWidthtemp(mitoARtemp<ARthresh1);
 mitoWidthbig = mitoWidthtemp(mitoARtemp>ARthresh1);
 mitoLengthsmall = mitoLengthtemp(mitoARtemp<ARthresh1);
@@ -52,6 +66,17 @@ mitoAreasmall = mitoAreatemp(mitoARtemp<ARthresh1);
 mitoAreabig = mitoAreatemp(mitoARtemp>ARthresh1);
 mitoARsmall = mitoARtemp(mitoARtemp<ARthresh1);
 mitoARbig = mitoARtemp(mitoARtemp>ARthresh1);
+%}
+%%{
+% Split small-ARsmall-TMRE- and small-ARsmall-TMRE+ mitos
+mitoWidthsmall = mitoWidthtemp(mitoTMREparamtemp==0);
+mitoWidthbig = mitoWidthtemp(mitoTMREparamtemp==1);
+mitoLengthsmall = mitoLengthtemp(mitoTMREparamtemp==0);
+mitoLengthbig = mitoLengthtemp(mitoTMREparamtemp==1);
+mitoAreasmall = mitoAreatemp(mitoTMREparamtemp==0);
+mitoAreabig = mitoAreatemp(mitoTMREparamtemp==1);
+mitoARsmall = mitoARtemp(mitoTMREparamtemp==0);
+mitoARbig = mitoARtemp(mitoTMREparamtemp==1);
 %}
 %{
 % Split small-mitodoublepeak (1) and small-mitosinglepeak (0) mitos
@@ -76,18 +101,18 @@ h8var = mitoARbig;  % "Big" TMRE- mito
 %%}
 
 boundlow = [0, 0, 0, 0];
-stepwidth = [0.015, 0.006, 0.03, 0.05];
+stepwidth = [0.02, 0.008, 0.04, 0.05];
 boundup = [0.4, 0.1, 0.6, 1];
 xlimlow = boundlow;
 xlimup = boundup;
-ylimup = [0.4, 0.4, 0.4, 0.4];
+ylimup = [0.4, 0.4, 0.4, 0.5];
 
 fontsize = 12;
 opacity = 0.5;
 
 % legendtext1 = 'All mito';
-legendtext1 = sprintf('Area<0.04');
-legendtext2 = sprintf('Area>0.04');
+legendtext1 = sprintf('TMRE-');
+legendtext2 = sprintf('TMRE+');
 
 xlabeltext1 = 'Mitochondria width [um]';
 xlabeltext2 = 'Mitochondria area [um^2]';
