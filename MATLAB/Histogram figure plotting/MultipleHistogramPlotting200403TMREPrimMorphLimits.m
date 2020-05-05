@@ -23,14 +23,14 @@ mitodoublepeakparamtemp = mitodoublepeakparamt(mitoTMREparam==0 & mitoAreat<area
 areathresh = 0.086;
 ARthresh1 = 0.5;
 % h1var = mitoWidtht(mitoTMREparam==1);  % All TMRE+ mito
-mitoWidthtemp = mitoWidtht(mitoARt<ARthresh1 & mitoAreat<areathresh);  % All area-small AR-small mito
+mitoWidthtemp = mitoWidtht(mitoAreat<areathresh & mitoARt > ARthresh1);  % All area-small AR-small mito
 % h3var = mitoAreat(mitoTMREparam==1);  % All TMRE+ mito
-mitoAreatemp = mitoAreat(mitoARt<ARthresh1 & mitoAreat<areathresh);  % All area-small AR-small mito
+mitoAreatemp = mitoAreat(mitoAreat<areathresh & mitoARt > ARthresh1);  % All area-small AR-small mito
 % h5var = mitoLengtht(mitoTMREparam==1);  % All TMRE+ mito
-mitoLengthtemp = mitoLengtht(mitoARt<ARthresh1 & mitoAreat<areathresh);  % All area-small AR-small mito
+mitoLengthtemp = mitoLengtht(mitoAreat<areathresh & mitoARt > ARthresh1);  % All area-small AR-small mito
 % h5var = mitoARt(mitoTMREparam==1);  % All TMRE+ mito
-mitoARtemp = mitoARt(mitoARt<ARthresh1 & mitoAreat<areathresh);  % All area-small AR-small mito
-mitoTMREparamtemp = mitoTMREparam(mitoARt<ARthresh1 & mitoAreat<areathresh);  % All area-small AR-small mito
+mitoARtemp = mitoARt(mitoAreat<areathresh & mitoARt > ARthresh1);  % All area-small AR-small mito
+mitoTMREparamtemp = mitoTMREparam(mitoAreat<areathresh & mitoARt > ARthresh1);  % All area-small AR-small mito
 
 %}
 %{
@@ -68,7 +68,7 @@ mitoARsmall = mitoARtemp(mitoARtemp<ARthresh1);
 mitoARbig = mitoARtemp(mitoARtemp>ARthresh1);
 %}
 %%{
-% Split small-ARsmall-TMRE- and small-ARsmall-TMRE+ mitos
+% Split TMRE- and TMRE+ mitos
 mitoWidthsmall = mitoWidthtemp(mitoTMREparamtemp==0);
 mitoWidthbig = mitoWidthtemp(mitoTMREparamtemp==1);
 mitoLengthsmall = mitoLengthtemp(mitoTMREparamtemp==0);
@@ -77,6 +77,17 @@ mitoAreasmall = mitoAreatemp(mitoTMREparamtemp==0);
 mitoAreabig = mitoAreatemp(mitoTMREparamtemp==1);
 mitoARsmall = mitoARtemp(mitoTMREparamtemp==0);
 mitoARbig = mitoARtemp(mitoTMREparamtemp==1);
+%}
+%{
+% Split all mito into smaller and bigger than thresh
+mitoWidthsmall = mitoWidtht(mitoAreat<areathresh);
+mitoWidthbig = mitoWidtht(mitoAreat>areathresh);
+mitoLengthsmall = mitoLengtht(mitoAreat<areathresh);
+mitoLengthbig = mitoLengtht(mitoAreat>areathresh);
+mitoAreasmall = mitoAreat(mitoAreat<areathresh);
+mitoAreabig = mitoAreat(mitoAreat>areathresh);
+mitoARsmall = mitoARt(mitoAreat<areathresh);
+mitoARbig = mitoARt(mitoAreat>areathresh);
 %}
 %{
 % Split small-mitodoublepeak (1) and small-mitosinglepeak (0) mitos
@@ -89,23 +100,33 @@ mitoAreabig = mitoAreat(mitodoublepeakparamt==1);
 mitoARsmall = mitoARt(mitodoublepeakparamt==0);
 mitoARbig = mitoARt(mitodoublepeakparamt==1);
 %}
+h1var = mitoWidthsmall;
+h2var = mitoWidthbig;
+h3var = mitoAreasmall;
+h4var = mitoAreabig;
+h5var = mitoLengthsmall;
+h6var = mitoLengthbig;
+h7var = mitoARtemp;
+h8var = mitoARbig;
 
-h1var = mitoWidthsmall;  % Small TMRE- mito
-h2var = mitoWidthbig;  % "Big" TMRE- mito
-h3var = mitoAreasmall;  % Small TMRE- mito
-h4var = mitoAreabig;  % "Big" TMRE- mito
-h5var = mitoLengthsmall;  % Small TMRE- mito
-h6var = mitoLengthbig;  % "Big" TMRE- mito
-h7var = mitoARsmall;  % Small TMRE- mito
-h8var = mitoARbig;  % "Big" TMRE- mito
-%%}
-
+%{
+% All mito
 boundlow = [0, 0, 0, 0];
-stepwidth = [0.02, 0.008, 0.04, 0.05];
+stepwidth = [0.025, 0.086, 0.1, 0.075];
+boundup = [0.6, 3, 5, 1];
+xlimlow = boundlow;
+xlimup = boundup;
+ylimup = [0.4, 0.4, 0.4, 0.4];
+%}
+%%{
+% Small mito
+boundlow = [0, 0, 0, 0];
+stepwidth = [0.02, 0.009, 0.04, 0.05];
 boundup = [0.4, 0.1, 0.6, 1];
 xlimlow = boundlow;
 xlimup = boundup;
-ylimup = [0.4, 0.4, 0.4, 0.5];
+ylimup = [0.4, 0.4, 0.4, 0.4];
+%}
 
 fontsize = 12;
 opacity = 0.5;
@@ -190,7 +211,7 @@ disp(median(h5var))
 disp(median(h6var))
 disp(' ')
 
-mitoARfig = figure('rend','painters','pos',[100 500 300 300]);
+mitoARfig = figure('rend','painters','pos',[100 500 600 300]);
 n = 4;
 h5 = histogram(h7var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
 hold on
