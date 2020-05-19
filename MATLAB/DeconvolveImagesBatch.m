@@ -17,22 +17,23 @@ fwhmpsf = 70;  % FWHM of imaging PSF in nm
 functionFolder = fileparts(which('findFunctionFolders.m'));
 addpath(genpath(functionFolder));
 
-masterFolderPath = strcat(uigetdir('X:\Mitography\OXPHOS-MitographyAnalysis\Raw data X\Test'),'\');
+masterFolderPath = strcat(uigetdir('X:\Mitography\TMR-MitographyAnalysis\Raw data - test'),'\');
+masterFolderPathsave = strcat(uigetdir('X:\Mitography\TMR-MitographyAnalysis\RL data - test'),'\');
 fileList = dir(fullfile(masterFolderPath, 'Image*.tif'));
 for i = 1:length(fileList)
     filenumbers(i) = str2num(fileList(i).name(7:9));
 end
 lastFileNumber = max(filenumbers);
 
-fileNumbers = 1:lastFileNumber;
-% fileNumbers = 1:3;
+% fileNumbers = 1:lastFileNumber;
+fileNumbers = 16:25;
 
 filenameallmito = '-Mitochondria.tif';
-filenameallmitosave = '-MitochondriaRL.tif';
+filenameallmitosave = '-Mitochondria.tif';
 
 for fileNum = fileNumbers
     filepathmito = strFilepath(fileNum,filenameallmito,masterFolderPath);
-    filepathmitosave = strFilepath(fileNum,filenameallmitosave,masterFolderPath);
+    filepathmitosave = strFilepath(fileNum,filenameallmitosave,masterFolderPathsave);
     
     try
         % Read the mitochondria image

@@ -8,8 +8,11 @@ sigma_psf_px = sigmanm/px_sizenm;
 % % TMRE data
 % niter = 10;
 % dampar = 0.01;
-% OXPHOS data
-niter = 15;
+% % OXPHOS data
+% niter = 15;
+% dampar = 1;
+% TMRE data new
+niter = 10;
 dampar = 1;
 
 img = im2double(imguint8_255)*255;

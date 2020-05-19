@@ -8,6 +8,7 @@ darkGray = [0.2 0.2 0.2];
 
 % % All mito
 areathresh = 0.086;
+areathresh2 = 1.5;
 ARthresh1 = 0.5;
 % h1var = mitoWidtht(mitoTMREparam==1);  % All TMRE+ mito
 mitoWidthtemp = mitoWidthm(mitoAream<areathresh);  % All area-small AR-small mito

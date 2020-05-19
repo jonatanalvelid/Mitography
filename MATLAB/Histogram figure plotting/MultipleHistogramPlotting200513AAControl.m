@@ -1,41 +1,13 @@
 %%% MULTIPLE HISTOGRAM PLOTTING
-% Dataset: \\X:\TestaLab\Mitography\TMR-MitographyAnalysis\mitoData-RL-200317.mat
+% Dataset: X:\Mitography\NEW\Antimycin Treatments_April2020\6h_5nM AA\200513-allMito-xxx-xxx.mat
 
-colors = lines(2);
+colors = lines(4);
 gray = [0.6 0.6 0.6];
 lightGray = [0.7 0.7 0.7];
 darkGray = [0.2 0.2 0.2];
 
-%%% NOT NEEDED ANYMORE, DO THIS IN RESULTS SCRIPT INSTEAD
-mitoARt = mitoWidtht./mitoLengtht;
-mitoARm = mitoWidthm./mitoLengthm;
-% If AR is >1, just invert it, as the axises have been mixed up
-for i=1:length(mitoARt)
-    if mitoARt(i) > 1
-        mitoARt(i) = 1/mitoARt(i);
-    end
-end
-for i=1:length(mitoARm)
-    if mitoARm(i) > 1
-        mitoARm(i) = 1/mitoARm(i);
-    end
-end
-
-%%{
-% All mitos
-mitoWidthttemp = mitoWidtht();  % All mito
-mitoWidthmtemp = mitoWidthm();  % All mito
-mitoAreattemp = mitoAreat();  % All mito
-mitoAreamtemp = mitoAream();  % All mito
-mitoLengthttemp = mitoLengtht();  % All mito
-mitoLengthmtemp = mitoLengthm();  % All mito
-mitoARttemp = mitoARt();  % All mito
-mitoARmtemp = mitoARm();  % All mito
-mitoTMREparamtemp = mitoTMREparamt();  % All mito
-mitoMitoSOXparamtemp = mitoMitoSOXparamm();  % All mito
-%}
+% All mito
 %{
-% All MDVs
 areathresh = 0.086;
 ARthresh = 0.5;
 mitoWidthttemp = mitoWidtht(mitoARt>ARthresh & mitoAreat<areathresh);  % 
@@ -60,17 +32,6 @@ mitoARttemp = mitoARm;  %
 mitoARmtemp = mitoARt;  % 
 %}
 
-%%{
-% All mitos
-h1var = mitoWidthttemp();  % All mito
-h2var = mitoWidthmtemp();  % All mito
-h3var = mitoAreattemp();  % All mito
-h4var = mitoAreamtemp();  % All mito
-h5var = mitoLengthttemp();  % All mito
-h6var = mitoLengthmtemp();  % All mito
-h7var = mitoARttemp();  % All mito
-h8var = mitoARmtemp();  % All mito
-%}
 %{
 % Split small-small and small-big mitos
 areathresh1 = 0.04;
@@ -136,31 +97,40 @@ h6var = mitoLengthmbig;  % Big MitoSOX- mito
 h7var = mitoARtbig;  % Big TMRE- mito
 h8var = mitoARmbig;  % Big MitoSOX- mito
 %}
-%{
-% All TMRE+ and MitoSOX-
-h1var = mitoWidthttemp(mitoTMREparamtemp==1);  % All TMRE+ MDVs below conf lim
-h2var = mitoWidthmtemp(mitoMitoSOXparamtemp==0);  % All MitoSOX- MDVs below conf lim
-h3var = mitoAreattemp(mitoTMREparamtemp==1);  % All TMRE+ MDVs below conf lim
-h4var = mitoAreamtemp(mitoMitoSOXparamtemp==0);  % All MitoSOX- MDVs below conf lim
-h5var = mitoLengthttemp(mitoTMREparamtemp==1);  % All TMRE+ MDVs below conf lim
-h6var = mitoLengthmtemp(mitoMitoSOXparamtemp==0);  % All MitoSOX- MDVs below conf lim
-h7var = mitoARttemp(mitoTMREparamtemp==1);  % All TMRE+ MDVs below conf lim
-h8var = mitoARmtemp(mitoMitoSOXparamtemp==0);  % All MitoSOX- MDVs below conf lim
-%}
 
+hvars{3} = mitoWidthctoxp();  % All control oxphos mitos
+hvars{4} = mitoWidthctpex();  % All control pex mitos
+hvars{7} = mitoAreactoxp();  % All control oxphos mitos
+hvars{8} = mitoAreactpex();  % All control pex mitos
+hvars{11} = mitoLengthctoxp();  % All control oxphos mitos
+hvars{12} = mitoLengthctpex();  % All control pex mitos
+hvars{15} = mitoARctoxp();  % All control oxphos mitos
+hvars{16} = mitoARctpex();  % All control pex mitos
+
+%%{
+%%% For all
+boundlow = [0, 0, 0, 0];
+stepwidth = [0.013, 0.06, 0.2, 0.05];
+boundup = [0.5, 3, 5, 1];
+xlimlow = boundlow;
+xlimup = boundup;
+ylimup = [0.25, 0.5, 0.4, 0.2];
+%}
+%{
+%%% For small
 boundlow = [0, 0, 0, 0];
 stepwidth = [0.025, 0.009, 0.04, 0.066];
 boundup = [0.4, 0.1, 0.6, 1];
 xlimlow = boundlow;
 xlimup = boundup;
 ylimup = [0.5, 0.4, 0.4, 0.5];
+%}
 
 fontsize = 12;
 opacity = 0.5;
 
 % legendtext1 = 'All mito';
-legendtext1 = sprintf('TMRE+');
-legendtext2 = sprintf('MitoSOX-');
+legendtexts = {'CT OXP','CT PEX'};
 
 xlabeltext1 = 'Mitochondria width [um]';
 xlabeltext2 = 'Mitochondria area [um^2]';
@@ -171,95 +141,118 @@ xlabeltext4 = 'Mitochondria aspect ratio [arb.u.]';
 %%%,'FaceAlpha',opacity %%% If you want different opacity
 mitowidfig = figure('rend','painters','pos',[100 100 300 300]);
 n = 1;
-h1 = histogram(h1var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
+h3 = histogram(hvars{3},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(3,:));
 hold on
-h2 = histogram(h2var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
+h4 = histogram(hvars{4},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(4,:));
 xlim([xlimlow(n) xlimup(n)])
 xlabel(xlabeltext1)
 ylim([0 ylimup(n)])
 ylabel('Norm. frequency')
 %title(strcat(titletext1,', N=',num2str(length(h1var))));
-legend(legendtext1,legendtext2);
+legend(legendtexts);
 set(gca,'FontSize',fontsize)
 set(gca,'TickDir','out');
 xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
 xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
 yticks([0:ylimup(n)/12:ylimup(n)])
 yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
-disp(mean(h1var))
-disp(mean(h2var))
-disp(median(h1var))
-disp(median(h2var))
-disp(' ')
+
+hmatwid = nan(4,4);
+pmatwid = nan(4,4);
+for n = 1:4
+    for m = n+1:4
+        [h,p] = kstest2(hvars{n},hvars{m});
+        hmatwid(n,m) = h;
+        pmatwid(n,m) = p;
+    end
+end
+
 
 mitoareafig = figure('rend','painters','pos',[410 100 300 300]);
 n = 2;
-h3 = histogram(h3var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
+h7 = histogram(hvars{7},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(3,:));
 hold on
-h4 = histogram(h4var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
+h8 = histogram(hvars{8},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(4,:));
 xlim([xlimlow(n) xlimup(n)])
 xlabel(xlabeltext2)
 ylim([0 ylimup(n)])
 ylabel('Norm. frequency')
 %title(strcat(titletext2,', N=',num2str(length(h3var))));
-legend(legendtext1,legendtext2);
+legend(legendtexts);
 set(gca,'FontSize',fontsize)
 set(gca,'TickDir','out');
 xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
 xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
 yticks([0:ylimup(n)/12:ylimup(n)])
 yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
-disp(mean(h3var))
-disp(mean(h4var))
-disp(median(h3var))
-disp(median(h4var))
-disp(' ')
+
+hmatare = nan(4,4);
+pmatare = nan(4,4);
+for n = 1:4
+    for m = n+1:4
+        [h,p] = kstest2(hvars{n+4},hvars{m+4});
+        hmatare(n,m) = h;
+        pmatare(n,m) = p;
+    end
+end
+
 
 mitolenfig = figure('rend','painters','pos',[410 500 300 300]);
 n = 3;
-h5 = histogram(h5var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
+h11 = histogram(hvars{11},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(3,:));
 hold on
-h6 = histogram(h6var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
+h12 = histogram(hvars{12},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(4,:));
 xlim([xlimlow(n) xlimup(n)])
 xlabel(xlabeltext3)
 ylim([0 ylimup(n)])
 ylabel('Norm. frequency')
 %title(strcat(titletext3,', N=',num2str(length(h5var))));
-legend(legendtext1,legendtext2);
+legend(legendtexts);
 set(gca,'FontSize',fontsize)
 set(gca,'TickDir','out');
 xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
 xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
 yticks([0:ylimup(n)/12:ylimup(n)])
 yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
-disp(mean(h5var))
-disp(mean(h6var))
-disp(median(h5var))
-disp(median(h6var))
-disp(' ')
+
+hmatlen = nan(4,4);
+pmatlen = nan(4,4);
+for n = 1:4
+    for m = n+1:4
+        [h,p] = kstest2(hvars{n+8},hvars{m+8});
+        hmatlen(n,m) = h;
+        pmatlen(n,m) = p;
+    end
+end
+
 
 mitoARfig = figure('rend','painters','pos',[100 500 300 300]);
 n = 4;
-h5 = histogram(h7var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
+h15 = histogram(hvars{15},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(3,:));
 hold on
-h6 = histogram(h8var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
+h16 = histogram(hvars{16},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(4,:));
 xlim([xlimlow(n) xlimup(n)])
 xlabel(xlabeltext4)
 ylim([0 ylimup(n)])
 ylabel('Norm. frequency')
 %title(strcat(titletext3,', N=',num2str(length(h5var))));
-legend(legendtext1,legendtext2);
+legend(legendtexts);
 set(gca,'FontSize',fontsize)
 set(gca,'TickDir','out');
 xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
 xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
 yticks([0:ylimup(n)/12:ylimup(n)])
 yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
-disp(mean(h7var))
-disp(mean(h8var))
-disp(median(h7var))
-disp(median(h8var))
-disp(' ')
+
+hmatar = nan(4,4);
+pmatar = nan(4,4);
+for n = 1:4
+    for m = n+1:4
+        [h,p] = kstest2(hvars{n+12},hvars{m+12});
+        hmatar(n,m) = h;
+        pmatar(n,m) = p;
+    end
+end
 
 %{
 % h1var = mitoMitoSOX(mitoLengthm>0.250);

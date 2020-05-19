@@ -1,53 +1,60 @@
 %%% MULTIPLE HISTOGRAM PLOTTING
-% Dataset: \\X:\TestaLab\Mitography\TMR-MitographyAnalysis\mitoData-RL-200317.mat
+% Dataset: E:\PhD\Data analysis\Mitography - temp copy\200515-allMito-TMRE+MitoSOX.mat
+
+clear all
+close all
+load('E:\PhD\Data analysis\Mitography - temp copy\200515-allMito-TMRE+MitoSOX.mat');
 
 colors = lines(2);
 gray = [0.6 0.6 0.6];
 lightGray = [0.7 0.7 0.7];
 darkGray = [0.2 0.2 0.2];
 
-%%% NOT NEEDED ANYMORE, DO THIS IN RESULTS SCRIPT INSTEAD
-mitoARt = mitoWidtht./mitoLengtht;
-mitoARm = mitoWidthm./mitoLengthm;
-% If AR is >1, just invert it, as the axises have been mixed up
-for i=1:length(mitoARt)
-    if mitoARt(i) > 1
-        mitoARt(i) = 1/mitoARt(i);
-    end
+%{
+% Swap width and length for those where it is in the wrong order
+% A test makes it seems like this is not necessary, not adjusting the whole
+population distributions too much, just very slightly
+widlenswap = mitoWidtht > mitoLengtht;
+for i = widlenswap
+    [mitoWidtht(i), mitoLengtht(i)] = deal(mitoLengtht(i),mitoWidtht(i));
 end
-for i=1:length(mitoARm)
-    if mitoARm(i) > 1
-        mitoARm(i) = 1/mitoARm(i);
-    end
+widlenswap = mitoWidthm > mitoLengthm;
+for i = widlenswap
+    [mitoWidthm(i), mitoLengthm(i)] = deal(mitoLengthm(i),mitoWidthm(i));
 end
+%}
 
-%%{
+%{
 % All mitos
-mitoWidthttemp = mitoWidtht();  % All mito
-mitoWidthmtemp = mitoWidthm();  % All mito
-mitoAreattemp = mitoAreat();  % All mito
-mitoAreamtemp = mitoAream();  % All mito
-mitoLengthttemp = mitoLengtht();  % All mito
-mitoLengthmtemp = mitoLengthm();  % All mito
-mitoARttemp = mitoARt();  % All mito
-mitoARmtemp = mitoARm();  % All mito
-mitoTMREparamtemp = mitoTMREparamt();  % All mito
-mitoMitoSOXparamtemp = mitoMitoSOXparamm();  % All mito
+mitoWidthttemp = mitoWidtht();
+mitoWidthmtemp = mitoWidthm();
+mitoAreattemp = mitoAreat();
+mitoAreamtemp = mitoAream();
+mitoLengthttemp = mitoLengtht();
+mitoLengthmtemp = mitoLengthm();
+mitoARttemp = mitoARt();
+mitoARmtemp = mitoARm();
+mitoTMREparamtemp = mitoTMREparamt();
+mitoMitoSOXparamtemp = mitoMitoSOXparamm();
+%}
+%%{
+% All small mitos
+areathresh = 0.086;
+mitoWidthmtemp = mitoWidthm(mitoAream<areathresh);
+mitoAreamtemp = mitoAream(mitoAream<areathresh);
+mitoLengthmtemp = mitoLengthm(mitoAream<areathresh);
+mitoARmtemp = mitoARm(mitoAream<areathresh);
+mitoMitoSOXparamtemp = mitoMitoSOXparamm(mitoAream<areathresh);
 %}
 %{
 % All MDVs
 areathresh = 0.086;
-ARthresh = 0.5;
-mitoWidthttemp = mitoWidtht(mitoARt>ARthresh & mitoAreat<areathresh);  % 
-mitoWidthmtemp = mitoWidthm(mitoARm>ARthresh & mitoAream<areathresh);  % 
-mitoAreattemp = mitoAreat(mitoARt>ARthresh & mitoAreat<areathresh);  % 
-mitoAreamtemp = mitoAream(mitoARm>ARthresh & mitoAream<areathresh);  %
-mitoLengthttemp = mitoLengtht(mitoARt>ARthresh & mitoAreat<areathresh);  % 
-mitoLengthmtemp = mitoLengthm(mitoARm>ARthresh & mitoAream<areathresh);  %
-mitoARttemp = mitoARt(mitoARt>ARthresh & mitoAreat<areathresh);  % 
-mitoARmtemp = mitoARm(mitoARm>ARthresh & mitoAream<areathresh);  %
-mitoTMREparamtemp = mitoTMREparam(mitoARt>ARthresh & mitoAreat<areathresh);  % All area-small AR-small mito
-mitoMitoSOXparamtemp = mitoMitoSOXparam(mitoARm>ARthresh & mitoAream<areathresh);  % All area-small AR-small mito
+ARthresh = 0.5; 
+mitoWidthmtemp = mitoWidthm(mitoARm>ARthresh & mitoAream<areathresh);
+mitoAreamtemp = mitoAream(mitoARm>ARthresh & mitoAream<areathresh);
+mitoLengthmtemp = mitoLengthm(mitoARm>ARthresh & mitoAream<areathresh);
+mitoARmtemp = mitoARm(mitoARm>ARthresh & mitoAream<areathresh);
+mitoMitoSOXparamtemp = mitoMitoSOXparam(mitoARm>ARthresh & mitoAream<areathresh);
 %}
 %{
 mitoWidthttemp = mitoWidthm;  % 
@@ -60,16 +67,40 @@ mitoARttemp = mitoARm;  %
 mitoARmtemp = mitoARt;  % 
 %}
 
-%%{
+%{
 % All mitos
-h1var = mitoWidthttemp();  % All mito
-h2var = mitoWidthmtemp();  % All mito
-h3var = mitoAreattemp();  % All mito
-h4var = mitoAreamtemp();  % All mito
-h5var = mitoLengthttemp();  % All mito
-h6var = mitoLengthmtemp();  % All mito
-h7var = mitoARttemp();  % All mito
-h8var = mitoARmtemp();  % All mito
+hvars{1} = mitoWidthmtemp(mitoMitoSOXparamtemp == 1);  % All mito
+hvars{2} = mitoWidthmtemp(mitoMitoSOXparamtemp == 0);  % All mito
+hvars{3} = mitoAreamtemp(mitoMitoSOXparamtemp == 1);  % All mito
+hvars{4} = mitoAreamtemp(mitoMitoSOXparamtemp == 0);  % All mito
+hvars{5} = mitoLengthmtemp(mitoMitoSOXparamtemp == 1);  % All mito
+hvars{6} = mitoLengthmtemp(mitoMitoSOXparamtemp == 0);  % All mito
+hvars{7} = mitoARmtemp(mitoMitoSOXparamtemp == 1);  % All mito
+hvars{8} = mitoARmtemp(mitoMitoSOXparamtemp == 0);  % All mito
+%}
+%%{
+% MitoSOX+ v MitoSOX- sticks
+ARthresh = 0.5;
+hvars{1} = mitoWidthmtemp(mitoMitoSOXparamtemp==1 & mitoARmtemp<ARthresh);  % All mito
+hvars{2} = mitoWidthmtemp(mitoMitoSOXparamtemp==0 & mitoARmtemp<ARthresh);  % All mito
+hvars{3} = mitoAreamtemp(mitoMitoSOXparamtemp==1 & mitoARmtemp<ARthresh);  % All mito
+hvars{4} = mitoAreamtemp(mitoMitoSOXparamtemp==0 & mitoARmtemp<ARthresh);  % All mito
+hvars{5} = mitoLengthmtemp(mitoMitoSOXparamtemp==1 & mitoARmtemp<ARthresh);  % All mito
+hvars{6} = mitoLengthmtemp(mitoMitoSOXparamtemp==0 & mitoARmtemp<ARthresh);  % All mito
+hvars{7} = mitoARmtemp(mitoMitoSOXparamtemp==1 & mitoARmtemp<ARthresh);  % All mito
+hvars{8} = mitoARmtemp(mitoMitoSOXparamtemp==0 & mitoARmtemp<ARthresh);  % All mito
+%}
+%{
+% MitoSOX+ v MitoSOX- MDVs
+ARthresh = 0.5;
+hvars{1} = mitoWidthmtemp(mitoMitoSOXparamtemp==1 & mitoARmtemp>ARthresh);  % All mito
+hvars{2} = mitoWidthmtemp(mitoMitoSOXparamtemp==0 & mitoARmtemp>ARthresh);  % All mito
+hvars{3} = mitoAreamtemp(mitoMitoSOXparamtemp==1 & mitoARmtemp>ARthresh);  % All mito
+hvars{4} = mitoAreamtemp(mitoMitoSOXparamtemp==0 & mitoARmtemp>ARthresh);  % All mito
+hvars{5} = mitoLengthmtemp(mitoMitoSOXparamtemp==1 & mitoARmtemp>ARthresh);  % All mito
+hvars{6} = mitoLengthmtemp(mitoMitoSOXparamtemp==0 & mitoARmtemp>ARthresh);  % All mito
+hvars{7} = mitoARmtemp(mitoMitoSOXparamtemp==1 & mitoARmtemp>ARthresh);  % All mito
+hvars{8} = mitoARmtemp(mitoMitoSOXparamtemp==0 & mitoARmtemp>ARthresh);  % All mito
 %}
 %{
 % Split small-small and small-big mitos
@@ -148,19 +179,49 @@ h7var = mitoARttemp(mitoTMREparamtemp==1);  % All TMRE+ MDVs below conf lim
 h8var = mitoARmtemp(mitoMitoSOXparamtemp==0);  % All MitoSOX- MDVs below conf lim
 %}
 
+%{
+% For all
+boundlow = [0, 0, 0, 0];
+stepwidth = [0.013, 0.06, 0.1, 0.05];
+boundup = [0.5, 3, 5, 1];
+xlimlow = boundlow;
+xlimup = boundup;
+ylimup = [0.4, 0.3, 0.3, 0.2];
+%}
+%{
+% For all - smaller
+boundlow = [0, 0, 0, 0];
+stepwidth = [0.013, 0.02, 0.05, 0.05];
+boundup = [0.5, 0.5, 1, 1];
+xlimlow = boundlow;
+xlimup = boundup;
+ylimup = [0.3, 0.3, 0.3, 0.3];
+%}
+%%{
+% For small - v1
 boundlow = [0, 0, 0, 0];
 stepwidth = [0.025, 0.009, 0.04, 0.066];
 boundup = [0.4, 0.1, 0.6, 1];
 xlimlow = boundlow;
 xlimup = boundup;
-ylimup = [0.5, 0.4, 0.4, 0.5];
+ylimup = [0.5, 0.5, 0.5, 0.5];
+%}
+%{
+% For small - v2
+boundlow = [0, 0, 0, 0];
+stepwidth = [0.016, 0.0066, 0.04, 0.066];
+boundup = [0.4, 0.1, 1, 1];
+xlimlow = boundlow;
+xlimup = boundup;
+ylimup = [0.4, 0.3, 0.3, 0.3];
+%}
+
 
 fontsize = 12;
 opacity = 0.5;
 
 % legendtext1 = 'All mito';
-legendtext1 = sprintf('TMRE+');
-legendtext2 = sprintf('MitoSOX-');
+legendtexts = {'MitoSOX+','MitoSOX-'};
 
 xlabeltext1 = 'Mitochondria width [um]';
 xlabeltext2 = 'Mitochondria area [um^2]';
@@ -171,101 +232,107 @@ xlabeltext4 = 'Mitochondria aspect ratio [arb.u.]';
 %%%,'FaceAlpha',opacity %%% If you want different opacity
 mitowidfig = figure('rend','painters','pos',[100 100 300 300]);
 n = 1;
-h1 = histogram(h1var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
+h1 = histogram(hvars{1},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
 hold on
-h2 = histogram(h2var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
+h2 = histogram(hvars{2},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
 xlim([xlimlow(n) xlimup(n)])
 xlabel(xlabeltext1)
 ylim([0 ylimup(n)])
 ylabel('Norm. frequency')
 %title(strcat(titletext1,', N=',num2str(length(h1var))));
-legend(legendtext1,legendtext2);
+legend(legendtexts);
 set(gca,'FontSize',fontsize)
 set(gca,'TickDir','out');
 xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
 xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
 yticks([0:ylimup(n)/12:ylimup(n)])
 yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
-disp(mean(h1var))
-disp(mean(h2var))
-disp(median(h1var))
-disp(median(h2var))
+disp(mean(hvars{1}))
+disp(mean(hvars{2}))
+disp(median(hvars{1}))
+disp(median(hvars{2}))
+[h,p] = kstest2(hvars{1}',hvars{2}');
+disp(p)
 disp(' ')
 
 mitoareafig = figure('rend','painters','pos',[410 100 300 300]);
 n = 2;
-h3 = histogram(h3var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
+h3 = histogram(hvars{3},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
 hold on
-h4 = histogram(h4var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
+h4 = histogram(hvars{4},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
 xlim([xlimlow(n) xlimup(n)])
 xlabel(xlabeltext2)
 ylim([0 ylimup(n)])
 ylabel('Norm. frequency')
 %title(strcat(titletext2,', N=',num2str(length(h3var))));
-legend(legendtext1,legendtext2);
+legend(legendtexts);
 set(gca,'FontSize',fontsize)
 set(gca,'TickDir','out');
 xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
 xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
 yticks([0:ylimup(n)/12:ylimup(n)])
 yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
-disp(mean(h3var))
-disp(mean(h4var))
-disp(median(h3var))
-disp(median(h4var))
+disp(mean(hvars{3}))
+disp(mean(hvars{4}))
+disp(median(hvars{3}))
+disp(median(hvars{4}))
+[h,p] = kstest2(hvars{3},hvars{4});
+disp(p)
 disp(' ')
 
 mitolenfig = figure('rend','painters','pos',[410 500 300 300]);
 n = 3;
-h5 = histogram(h5var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
+h5 = histogram(hvars{5},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
 hold on
-h6 = histogram(h6var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
+h6 = histogram(hvars{6},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
 xlim([xlimlow(n) xlimup(n)])
 xlabel(xlabeltext3)
 ylim([0 ylimup(n)])
 ylabel('Norm. frequency')
 %title(strcat(titletext3,', N=',num2str(length(h5var))));
-legend(legendtext1,legendtext2);
+legend(legendtexts);
 set(gca,'FontSize',fontsize)
 set(gca,'TickDir','out');
 xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
 xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
 yticks([0:ylimup(n)/12:ylimup(n)])
 yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
-disp(mean(h5var))
-disp(mean(h6var))
-disp(median(h5var))
-disp(median(h6var))
+disp(mean(hvars{5}))
+disp(mean(hvars{6}))
+disp(median(hvars{5}))
+disp(median(hvars{6}))
+[h,p] = kstest2(hvars{5},hvars{6});
+disp(p)
 disp(' ')
 
 mitoARfig = figure('rend','painters','pos',[100 500 300 300]);
 n = 4;
-h5 = histogram(h7var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
+h7 = histogram(hvars{7},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',lightGray);
 hold on
-h6 = histogram(h8var,boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
+h8 = histogram(hvars{8},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
 xlim([xlimlow(n) xlimup(n)])
 xlabel(xlabeltext4)
 ylim([0 ylimup(n)])
 ylabel('Norm. frequency')
 %title(strcat(titletext3,', N=',num2str(length(h5var))));
-legend(legendtext1,legendtext2);
+legend(legendtexts);
 set(gca,'FontSize',fontsize)
 set(gca,'TickDir','out');
 xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
 xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
 yticks([0:ylimup(n)/12:ylimup(n)])
 yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
-disp(mean(h7var))
-disp(mean(h8var))
-disp(median(h7var))
-disp(median(h8var))
+disp(mean(hvars{7}))
+disp(mean(hvars{8}))
+disp(median(hvars{7}))
+disp(median(hvars{8}))
+[h,p] = kstest2(hvars{7},hvars{8});
+disp(p)
 disp(' ')
 
 %{
-% h1var = mitoMitoSOX(mitoLengthm>0.250);
-% h2var = mitoMitoSOX(mitoLengthm<0.250);
-h1var = mitoTMRE(mitoAreat>0.086);
-h2var = mitoTMRE(mitoAreat<0.086);
+h1var = mitoMitoSOXm(mitoAream>0.086);
+h2var = mitoMitoSOXm(mitoAream<0.086);
 [h,p]=kstest2(h1var,h2var);
 disp(p)
 
@@ -292,3 +359,4 @@ set(gca,'xticklabel',[])
 % xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
 % xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
 %}
+

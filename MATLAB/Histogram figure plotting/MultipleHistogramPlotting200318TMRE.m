@@ -14,21 +14,21 @@ darkGray = [0.2 0.2 0.2];
 % h5var = mitoLengtht(mitoTMREparam==1);  % All TMRE+ mito
 % h6var = mitoLengtht(mitoTMREparam==0);  % All TMRE- mito
 
-mitoARt = mitoWidtht./mitoLengtht;
+mitoAR = mitoWidth./mitoLength;
 
 %%{
 % Only take small mitos
 areathresh = 0.086;
-mitoWidthsmall = mitoWidtht(mitoAreat<areathresh);
-mitoWidthbig = mitoWidtht(mitoAreat>areathresh);
-mitoLengthsmall = mitoLengtht(mitoAreat<areathresh);
-mitoLengthbig = mitoLengtht(mitoAreat>areathresh);
-mitoAreasmall = mitoAreat(mitoAreat<areathresh);
-mitoAreabig = mitoAreat(mitoAreat>areathresh);
-mitoARsmall = mitoARt(mitoAreat<areathresh);
-mitoARbig = mitoARt(mitoAreat>areathresh);
-mitoTMREparamsmall = mitoTMREparam(mitoAreat<areathresh);
-mitoTMREparambig = mitoTMREparam(mitoAreat>areathresh);
+mitoWidthsmall = mitoWidth(mitoArea<areathresh);
+mitoWidthbig = mitoWidth(mitoArea>areathresh);
+mitoLengthsmall = mitoLength(mitoArea<areathresh);
+mitoLengthbig = mitoLength(mitoArea>areathresh);
+mitoAreasmall = mitoArea(mitoArea<areathresh);
+mitoAreabig = mitoArea(mitoArea>areathresh);
+mitoARsmall = mitoAR(mitoArea<areathresh);
+mitoARbig = mitoAR(mitoArea>areathresh);
+mitoTMREparamsmall = mitoTMREparam(mitoArea<areathresh);
+mitoTMREparambig = mitoTMREparam(mitoArea>areathresh);
 
 h1var = mitoWidthsmall(mitoTMREparamsmall==1);  % Small MitoSOX+ mito
 h2var = mitoWidthsmall(mitoTMREparamsmall==0);  % Small MitoSOX- mito
@@ -154,10 +154,17 @@ disp(median(h8var))
 disp(' ')
 
 %%{
+areathresh = 0.08;
 % h1var = mitoMitoSOX(mitoLengthm>0.250);
 % h2var = mitoMitoSOX(mitoLengthm<0.250);
-h1var = mitoTMRE(mitoAreat>0.086)/max(mitoTMRE);
-h2var = mitoTMRE(mitoAreat<0.086)/max(mitoTMRE);
+% h1var = mitoTMRE(mitoArea>0.086)/max(mitoTMRE);
+% h2var = mitoTMRE(mitoArea<0.086)/max(mitoTMRE);
+% h1var = mitoOMP(mitoArea>0.086);
+% h2var = mitoOMP(mitoArea<0.086);
+h1var = mitoOMP(mitoArea<areathresh & mitoAR<0.5 & mitoTMREparam==1);
+h2var = mitoOMP(mitoArea<areathresh & mitoAR<0.5 & mitoTMREparam==0);
+% h1var = mitoOMP(mitoArea<0.086 & mitoAR<0.5);
+% h2var = mitoOMP(mitoArea<0.086 & mitoAR>0.5);
 [h,p]=kstest2(h1var,h2var);
 disp(p)
 
@@ -180,10 +187,12 @@ f2.MarkerFaceAlpha = f1.MarkerFaceAlpha;
 set(gca,'FontSize',fontsize)
 set(gca,'TickDir','out');
 set(gca,'xticklabel',[])
-ylabel('Mean TMRE intensity [arb.u.]')
+ylabel('Mean OMP25 intensity [arb.u.]')
 % set(gca,'ytick',[])
 % xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
-xticklabels({'A < Ath','A > Ath'})
+% xticklabels({sprintf('A < A_th'),sprintf('A > A_th')})
+xticklabels({'TMRE-','TMRE+'})
+% xticklabels({'MDVs','Sticks'})
 %}
 
 %{

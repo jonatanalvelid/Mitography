@@ -64,19 +64,19 @@ if(tom20 == 1) {
 		selectWindow("mitobinaryalt");
 		//Normalize masked original image.
 		run("Enhance Contrast...", "saturated=0 normalize");
-		run("Duplicate...", "title=mitobinaryalt");
-		rename("bernsen");
+		//run("Duplicate...", "title=mitobinaryalt");
+		//rename("bernsen");
 		//Do local thresholding with desired method and parameters
 		run("Auto Local Threshold", "method=" + localthresholdmethod + " radius=" + localradius + " parameter_1=" + contrastthresh + " parameter_2=0 white");
 		run("Erode");
 		run("Dilate");
 		run("Fill Holes");
-
 	} else {
 		run("Make Binary");
 		run("Fill Holes");
 	}
 }
+/*
 selectWindow("mitobinaryalt");
 rename("mitobinary");
 selectWindow("mitobinary");
@@ -87,23 +87,27 @@ selectWindow("mitobinaryaltraw");
 run("Close");
 selectWindow("MitoOriginalImageSoma");
 run("Close");
+*/
+
+selectWindow("mitobinaryalt");
+rename("mitobinary");
 
 
 
-//
-//if(allmito == 1) {
-//	if(tom20 == 1) {
-//		run("Analyze Particles...", "size=0.015-Infinity display clear include add"); //for counting all, big and small MDVs
-//	} else if(omp25 == 1) {
-//		run("Analyze Particles...", "size=0.003-Infinity display clear include add"); //for counting all, big and small MDVs
-//	}
-//} else if(allmito == 0) {
-//	//run("Analyze Particles...", "size=0.08-3.00 display exclude clear include add"); - for normal
-//	//run("Analyze Particles...", "size=0.08-Infinity display exclude clear include add"); //for getting all the mitochondria areas, also the big ones
-//	//run("Analyze Particles...", "size=0.02-Infinity display exclude clear include add"); //for getting all the mitochondria areas, also the big and small ones
-//	run("Analyze Particles...", "size=0.08-Infinity display exclude clear include add"); //for confocal
-//}
-//updateResults; 
+
+if(allmito == 1) {
+	if(tom20 == 1) {
+		run("Analyze Particles...", "size=0.015-Infinity display clear include add"); //for counting all, big and small MDVs
+	} else if(omp25 == 1) {
+		run("Analyze Particles...", "size=0.003-Infinity display clear include add"); //for counting all, big and small MDVs
+	}
+} else if(allmito == 0) {
+	//run("Analyze Particles...", "size=0.08-3.00 display exclude clear include add"); - for normal
+	//run("Analyze Particles...", "size=0.08-Infinity display exclude clear include add"); //for getting all the mitochondria areas, also the big ones
+	//run("Analyze Particles...", "size=0.02-Infinity display exclude clear include add"); //for getting all the mitochondria areas, also the big and small ones
+	run("Analyze Particles...", "size=0.08-Infinity display exclude clear include add"); //for confocal
+}
+updateResults; 
 
 //selectWindow("mitobinary");
 //run("Duplicate...", "title=mitobinary2");

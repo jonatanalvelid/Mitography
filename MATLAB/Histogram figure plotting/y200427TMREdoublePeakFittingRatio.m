@@ -24,8 +24,10 @@ mitobigtemp = mitoARt(mitoAreat>areathresh);  % All area-small AR-small mito
 mitobigdpparamtemp = mitodoublepeakparamt(mitoAreat>areathresh);  % All area-small AR-small mito
 
 % Split mitos based on double peak param
-mitostickdp = mitoARtemp(mitoARtemp<ARthresh1 & mitodpparamtemp==1);
-mitostickndp = mitoARtemp(mitoARtemp<ARthresh1 & mitodpparamtemp==0);
+mitostickTMREpdp = mitoARtemp(mitoARtemp<ARthresh1 & mitoTMREparamtemp==1 & mitodpparamtemp==1);
+mitostickTMREpndp = mitoARtemp(mitoARtemp<ARthresh1 & mitoTMREparamtemp==1 & mitodpparamtemp==0);
+mitostickTMREndp = mitoARtemp(mitoARtemp<ARthresh1 & mitoTMREparamtemp==0 & mitodpparamtemp==1);
+mitostickTMREnndp = mitoARtemp(mitoARtemp<ARthresh1 & mitoTMREparamtemp==0 & mitodpparamtemp==0);
 mitovesdp = mitoARtemp(mitoARtemp>ARthresh1 & mitodpparamtemp==1);
 mitovesndp = mitoARtemp(mitoARtemp>ARthresh1 & mitodpparamtemp==0);
 mitosmalldp = mitoARtemp(mitodpparamtemp==1);
@@ -42,7 +44,9 @@ disp('All big')
 disp(length(mitobigndp)/length([mitobigdp', mitobigndp']))
 disp('All small')
 disp(length(mitosmallndp)/length([mitosmalldp', mitosmallndp']))
-disp('Sticks')
-disp(length(mitostickndp)/length([mitostickdp', mitostickndp']))
+disp('Sticks, TMRE+')
+disp(length(mitostickTMREpndp)/length([mitostickTMREpdp', mitostickTMREpndp']))
+disp('Sticks, TMRE-')
+disp(length(mitostickTMREpndp)/length([mitostickTMREndp', mitostickTMREnndp']))
 disp('Vesicles')
 disp(length(mitovesndp)/length([mitovesdp', mitovesndp']))
