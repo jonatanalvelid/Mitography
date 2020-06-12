@@ -10,7 +10,7 @@ areathresh = 0.086;  % area threshold for mito do be listed
 arthresh = 0.5;  % AR threshold for sticks/vesicles decision
 sticks = 1;  % 1 = find sticks, 0 = no sticks
 vesicles = 0;  % 1 = find vesicles, 0 = no vesicles
-tmrechoice = 1;  % 1 = all TMRE+ mitos, 0 = all TMRE- mitos
+posnegchoice = 1;  % 1 = all + mitos (TMRE/MitoSOX), 0 = all - mitos (TMRE/MitoSOX
 %%%
 
 % Add function folder to filepath, so that those functions can be read.
@@ -96,13 +96,13 @@ end
 
 %%% DISPLAY THE MITOCHONDRIA NUMBER OF CHOOSEN MITOCHONDRIA 
 % Decide all parameters based on input params
-if ~tmrechoice && sticks
+if ~posnegchoice && sticks
     printmessage = 'All TMRE- sticks:';  % Message to print in console
-elseif tmrechoice && sticks
+elseif posnegchoice && sticks
     printmessage = 'All TMRE+ sticks:';
-elseif ~tmrechoice && vesicles
+elseif ~posnegchoice && vesicles
     printmessage = 'All TMRE- vesicles:';
-elseif tmrechoice && vesicles
+elseif posnegchoice && vesicles
     printmessage = 'All TMRE+ vesicles:';
 end
 disp(printmessage)
@@ -115,10 +115,10 @@ for fileNum=fileNumbers
             if ARtemp > 1
                 ARtemp = 1/ARtemp;
             end
-            if tmrechoice == tmreParamFiles(i,2,fileNum) && sticks && ARtemp < arthresh
+            if posnegchoice == tmreParamFiles(i,2,fileNum) && sticks && ARtemp < arthresh
                 disp(['Image: ' int2str(fileNum) ', mito: ' int2str(i)])
                 n = n+1;
-            elseif tmrechoice == tmreParamFiles(i,2,fileNum) && vesicles && ARtemp > arthresh
+            elseif posnegchoice == tmreParamFiles(i,2,fileNum) && vesicles && ARtemp > arthresh
                 disp(['Image: ' int2str(fileNum) ', mito: ' int2str(i)])
                 n = n+1;
             end
