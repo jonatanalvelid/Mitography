@@ -1,4 +1,5 @@
 // Binarize STED mitochondria image
+// Version: 2020-05-08
 run("Conversions...", " ");
 
 noImages = 1;
