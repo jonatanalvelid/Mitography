@@ -28,7 +28,7 @@ else:
 
 for filepath_mito in files_mito:
     imgname_mito = filepath_mito.split('\\')[1].split('.')[0]
-    print(imgname_mito)
+    print(imgname_mito.split('-')[0])
     imgno = int(imgname_mito.split('_')[1].split('-')[0])
     # load mito img
     with tifffile.TiffFile(filepath_mito) as tif:
