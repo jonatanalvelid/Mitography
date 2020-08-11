@@ -84,14 +84,23 @@ for filepath_neur in files_neur:
     xcor_px = round(anafull[0]/pxs_nm*1000).astype(int)
     ycor_px = round(anafull[1]/pxs_nm*1000).astype(int)
     area = anafull[3]
+    length = anafull[4]
+    width = anafull[7]
+    aspectratio = np.divide(width,length)
     print(np.shape(area))
-    # gather the area of the mito of interest in a list
+    # gather the area and AR of the mito of interest in a list
     mitoareas = []
+    mitoaspectratios = []
     for mitono in mitoofinterest['mitonum']:
         #print(mitono)
         mitoareas.append(area[mitono-1])
-    # add list of areas to all-data dataframe
+        artemp = aspectratio[mitono-1]
+        if artemp > 1:
+            artemp = 1/artemp
+        mitoaspectratios.append(artemp)
+    # add list of areas and ARs to all-data dataframe
     mitoofinterest['area'] = mitoareas
+    mitoofinterest['ar'] = mitoaspectratios
 
     # read binary neurites image
     with tifffile.TiffFile(files_neur[imgidx]) as tif:

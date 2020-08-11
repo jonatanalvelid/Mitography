@@ -62,7 +62,7 @@ for i in [0,1]:
         mitodensity = np.sum(np.sum(nummito_all[i,:,compidx]))/np.sum(np.sum(neurlen_all[:,compidx]))
         mitodensity_together[i][compidx] = mitodensity
 
-# -------- PER CELL - MEAN OF CELLS --------
+# -------- PER CELL - MEAN OF CELLS (NOT USEFUL) --------
 print('PER CELL - MEAN OF CELLS')
 mitodensity_percell = np.array(mitodensity_percell)
 # print all results
@@ -79,7 +79,7 @@ for comptype in comps:
         mitoratio = np.sum(np.sum(nummito_all[i,:,compidx]))/np.sum(np.sum(nummito_all[:,:,compidx]))
         print(f'MDV rat, comp type {comptype}, bool {i}: {mitoratio:.2}')
 
-# -------- ALL DATA TOGETHER --------
+# -------- ALL DATA TOGETHER - OXPHOS/PEX +/- --------
 print('ALL DATA TOGETHER')
 mitodensity_together = np.array(mitodensity_together)
 # print all results
