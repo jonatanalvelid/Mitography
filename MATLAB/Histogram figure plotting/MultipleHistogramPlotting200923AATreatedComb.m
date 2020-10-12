@@ -1,10 +1,11 @@
 %%% MULTIPLE HISTOGRAM PLOTTING
-% Dataset: X:\Mitography\NEW\Antimycin Treatments_April2020\6h_5nM AA\200513-allMito-xxx-xxx.mat
+% Dataset: X:\Mitography\NEW\Antimycin Treatments_April2020\6h_5nM AA\200923-allMito-6hAA-xxx.mat
 
 colors = lines(4);
 gray = [0.6 0.6 0.6];
 lightGray = [0.7 0.7 0.7];
 darkGray = [0.2 0.2 0.2];
+areathresh = 0.086;
 
 % All mito
 %{
@@ -98,23 +99,32 @@ h7var = mitoARtbig;  % Big TMRE- mito
 h8var = mitoARmbig;  % Big MitoSOX- mito
 %}
 
-hvars{3} = mitoWidthctoxp();  % All control oxphos mitos
-hvars{4} = mitoWidthctpex();  % All control pex mitos
-hvars{7} = mitoAreactoxp();  % All control oxphos mitos
-hvars{8} = mitoAreactpex();  % All control pex mitos
-hvars{11} = mitoLengthctoxp();  % All control oxphos mitos
-hvars{12} = mitoLengthctpex();  % All control pex mitos
-hvars{15} = mitoARctoxp();  % All control oxphos mitos
-hvars{16} = mitoARctpex();  % All control pex mitos
+mitoWidthaa = [mitoWidthaaoxp;mitoWidthaapex];
+mitoAreaaa = [mitoAreaaaoxp;mitoAreaaapex];
+mitoLengthaa = [mitoLengthaaoxp;mitoLengthaapex];
+mitoARaa = [mitoARaaoxp;mitoARaapex];
+mitoWidthaa = [mitoWidthaaoxp;mitoWidthaapex];
+mitoAreaaa = [mitoAreaaaoxp;mitoAreaaapex];
+mitoLengthaa = [mitoLengthaaoxp;mitoLengthaapex];
+mitoARaa = [mitoARaaoxp;mitoARaapex];
+
+hvars{3} = mitoWidthaa(mitoAreaaa<0.086);  % All control oxphos mitos
+hvars{4} = mitoWidthaa(mitoAreaaa>0.086);  % All control pex mitos
+hvars{7} = mitoAreaaa(mitoAreaaa<0.086);  % All control oxphos mitos
+hvars{8} = mitoAreaaa(mitoAreaaa>0.086);  % All control pex mitos
+hvars{11} = mitoLengthaa(mitoAreaaa<0.086);  % All control oxphos mitos
+hvars{12} = mitoLengthaa(mitoAreaaa>0.086);  % All control pex mitos
+hvars{15} = mitoARaa(mitoAreaaa<0.086);  % All control oxphos mitos
+hvars{16} = mitoARaa(mitoAreaaa>0.086);  % All control pex mitos
 
 %%{
 %%% For all
-boundlow = [0, 0, 0, 0];
-stepwidth = [0.013, 0.06, 0.2, 0.05];
-boundup = [0.5, 3, 5, 1];
+boundlow = [0, 0, 0, 0];  % wid, area, len, ar
+stepwidth = [0.013, 0.005, 0.2, 0.05];  % wid, area, len, ar
+boundup = [0.5, 0.1, 5, 1];  % wid, area, len, ar
 xlimlow = boundlow;
 xlimup = boundup;
-ylimup = [0.25, 0.5, 0.4, 0.2];
+ylimup = [0.25, 0.2, 0.4, 0.2];  % wid, area, len, ar
 %}
 %{
 %%% For small
@@ -129,15 +139,16 @@ ylimup = [0.5, 0.4, 0.4, 0.5];
 fontsize = 12;
 opacity = 0.5;
 
-% legendtext1 = 'All mito';
-legendtexts = {'CT OXP','CT PEX'};
+%legendtext1 = 'All mito';
+%legendtexts = {'A < A_{th}'};
+legendtexts = {'Glucose', 'Glucose AA'};
 
 xlabeltext1 = 'Mitochondria width [um]';
-xlabeltext2 = 'Mitochondria area [um^2]';
+xlabeltext2 = 'Mitochondria area [µm^2]';
 xlabeltext3 = 'Mitochondria length [um]';
 xlabeltext4 = 'Mitochondria aspect ratio [arb.u.]';
 
-
+%{
 %%%,'FaceAlpha',opacity %%% If you want different opacity
 mitowidfig = figure('rend','painters','pos',[100 100 300 300]);
 n = 1;
@@ -156,7 +167,7 @@ xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
 xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
 yticks([0:ylimup(n)/12:ylimup(n)])
 yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
-
+%}
 %{
 hmatwid = nan(4,4);
 pmatwid = nan(4,4);
@@ -169,11 +180,11 @@ for n = 1:4
 end
 %}
 
-mitoareafig = figure('rend','painters','pos',[410 100 300 300]);
+mitoareafig = figure('rend','painters','pos',[410 100 450 300]);
 n = 2;
-h7 = histogram(hvars{7},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(3,:));
-hold on
-h8 = histogram(hvars{8},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(4,:));
+h7 = histogram(hvars{7},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
+%hold on
+%h8 = histogram(hvars{8},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(4,:));
 xlim([xlimlow(n) xlimup(n)])
 xlabel(xlabeltext2)
 ylim([0 ylimup(n)])
@@ -198,7 +209,7 @@ for n = 1:4
     end
 end
 %}
-
+%{
 mitolenfig = figure('rend','painters','pos',[410 500 300 300]);
 n = 3;
 h11 = histogram(hvars{11},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(3,:));
@@ -216,7 +227,7 @@ xticks([xlimlow(n):(xlimup(n)-xlimlow(n))/12:xlimup(n)])
 xticklabels({xlimlow(n),'','',(xlimup(n)-xlimlow(n))/4,'','',(xlimup(n)-xlimlow(n))/2,'','',3*(xlimup(n)-xlimlow(n))/4,'','',xlimup(n)})
 yticks([0:ylimup(n)/12:ylimup(n)])
 yticklabels({0,'','',ylimup(n)/4,'','',ylimup(n)/2,'','',3*ylimup(n)/4,'','',ylimup(n)})
-
+%}
 %{
 hmatlen = nan(4,4);
 pmatlen = nan(4,4);
@@ -229,11 +240,11 @@ for n = 1:4
 end
 %}
 
-mitoARfig = figure('rend','painters','pos',[100 500 300 300]);
+mitoARfig = figure('rend','painters','pos',[100 500 450 300]);
 n = 4;
-h15 = histogram(hvars{15},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(3,:));
-hold on
-h16 = histogram(hvars{16},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(4,:));
+h15 = histogram(hvars{15},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',darkGray);
+%hold on
+%h16 = histogram(hvars{16},boundlow(n):stepwidth(n):boundup(n),'Normalization','probability','FaceColor',colors(4,:));
 xlim([xlimlow(n) xlimup(n)])
 xlabel(xlabeltext4)
 ylim([0 ylimup(n)])

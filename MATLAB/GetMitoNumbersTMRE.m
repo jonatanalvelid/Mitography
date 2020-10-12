@@ -10,7 +10,7 @@ areathresh = 0.086;  % area threshold for mito do be listed
 arthresh = 0.5;  % AR threshold for sticks/vesicles decision
 sticks = 1;  % 1 = find sticks, 0 = no sticks
 vesicles = 0;  % 1 = find vesicles, 0 = no vesicles
-posnegchoice = 1;  % 1 = all + mitos (TMRE/MitoSOX), 0 = all - mitos (TMRE/MitoSOX
+posnegchoice = 1;  % 1 = all + mitos (TMRE/MitoSOX), 0 = all - mitos (TMRE/MitoSOX)
 %%%
 
 % Add function folder to filepath, so that those functions can be read.
@@ -29,6 +29,7 @@ filenameAnalysis = '_MitoAnalysisFull.txt';
 %%% TAKE CARE OF ALL MITOCHONDRIA DATA
 
 mitoWidthFiles = zeros(mitosPerFile,2,lastFileNumber);
+mitoWidthEllFiles = zeros(mitosPerFile,2,lastFileNumber);
 mitoLengthFiles = zeros(mitosPerFile,2,lastFileNumber);
 mitoAreaFiles = zeros(mitosPerFile,2,lastFileNumber);
 doublepeakfitFiles = zeros(mitosPerFile,2,lastFileNumber);
@@ -51,6 +52,7 @@ for fileNum = fileNumbers
         data = dlmread(filepath);
         areaMito = data(1:end,4);
         lengthMito = data(1:end,5); %Ellipsoidal fit mitochondria length (major axis)
+        widthEllMito = data(1:end,6); %Ellipsoidal fit mitochondria width (minor axis)
         lengthSkelMito = data(1:end,7); %Skeleton mitochondria length (skeleton part closest to the mitochondria centroid)
         widthMito = data(1:end,8);
         doublepeakfit = data(1:end,29);
@@ -67,6 +69,8 @@ for fileNum = fileNumbers
             mitoAreaFiles(i,2,fileNum) = areaMito(i);
             mitoWidthFiles(i,1,fileNum) = i;
             mitoWidthFiles(i,2,fileNum) = widthMito(i);
+            mitoWidthEllFiles(i,1,fileNum) = i;
+            mitoWidthEllFiles(i,2,fileNum) = widthEllMito(i);
             mitoLengthFiles(i,1,fileNum) = i;
             % Take the maximum of the ellipsoidal and skeletal length.
             if areaMito(i) < 0.2
@@ -125,4 +129,37 @@ for fileNum=fileNumbers
         end
     end
 end
-fprintf('\nFound %i mitochondria! \n',n)
+fprintf('\nFound %i mitochondria (width_fit)! \n',n), disp(''), disp('')
+
+%%% DISPLAY THE MITOCHONDRIA NUMBER OF CHOOSEN MITOCHONDRIA 
+% Decide all parameters based on input params
+if ~posnegchoice && sticks
+    printmessage = 'All TMRE- sticks:';  % Message to print in console
+elseif posnegchoice && sticks
+    printmessage = 'All TMRE+ sticks:';
+elseif ~posnegchoice && vesicles
+    printmessage = 'All TMRE- vesicles:';
+elseif posnegchoice && vesicles
+    printmessage = 'All TMRE+ vesicles:';
+end
+disp(printmessage)
+n = 0;
+for fileNum=fileNumbers
+    for i=1:mitosPerFile
+        allcheck = somaParamFiles(i,2,fileNum) | borderParamFiles(i,2,fileNum) | bkgParamFiles(i,2,fileNum);
+        if mitoWidthFiles(i,2,fileNum) ~= 0 && mitoAreaFiles(i,2,fileNum) < areathresh && ~allcheck
+            ARtemp = mitoWidthEllFiles(i,2,fileNum)/mitoLengthFiles(i,2,fileNum);
+            if ARtemp > 1
+                ARtemp = 1/ARtemp;
+            end
+            if posnegchoice == tmreParamFiles(i,2,fileNum) && sticks && ARtemp < arthresh
+                disp(['Image: ' int2str(fileNum) ', mito: ' int2str(i)])
+                n = n+1;
+            elseif posnegchoice == tmreParamFiles(i,2,fileNum) && vesicles && ARtemp > arthresh
+                disp(['Image: ' int2str(fileNum) ', mito: ' int2str(i)])
+                n = n+1;
+            end
+        end
+    end
+end
+fprintf('\nFound %i mitochondria (width_ell)! \n',n)
