@@ -4,7 +4,9 @@ macro "Mitochondria analysis [F5]" {
 	// No Actin - only mitochondria morphology to analyse
 	// No SomaBinary - do this in MATLAB instead
 	// Only two input images - Mitochondria and MitoBinary
-
+	
+	setBatchMode(true);
+	
 	// No photon count normalization when changing from 32-bit to 8-bit
 	run("Conversions...", " ");
 
@@ -14,7 +16,7 @@ macro "Mitochondria analysis [F5]" {
 	filelist = getFileList(dir);
 	Array.sort(filelist);
 	filenamebase = "\\"+dir+"\\";
-	savedir = "E:\\PhD\\Data analysis\\Temp\\"
+	savedir = "E:\\PhD\\data_analysis\\Temp\\"
 	
 	for(r=0;r<filelist.length/noImages;r++) {
 		imageindexes = newArray(noImages);
@@ -62,9 +64,10 @@ macro "Mitochondria analysis [F5]" {
 		run("Clear Results");
 		run("Set Measurements...", "area centroid fit redirect=None decimal=3");
 		selectWindow("mitobinary");
-
-		run("Analyze Particles...", "size=0-Infinity display clear include add"); //for counting all, big and small MDVs. Remove the tiniest (noise, <~4px) later with an area threshold if necessary.
-
+		// exclude mitos on the border
+		//run("Analyze Particles...", "size=0-Infinity display exclude clear include add"); //for counting all, big and small MDVs. Remove the tiniest (noise, <~4px) later with an area threshold if necessary.
+		run("Analyze Particles...", "size=0-Infinity display clear include add");  //Sec61b
+		
 		updateResults; 
 
 		selectWindow("mitobinary");
@@ -77,7 +80,8 @@ macro "Mitochondria analysis [F5]" {
 		run("Duplicate...", "title=mitobinaryskel");
 		selectWindow("mitobinary2");
 
-		run("Analyze Particles...", "size=0-Infinity display clear add"); //for counting all, big and small MDVs. Remove tiniest (if noise) later.
+		//run("Analyze Particles...", "size=0-Infinity display exclude clear include add"); //for counting all, big and small MDVs. Remove tiniest (if noise) later.
+		run("Analyze Particles...", "size=0-Infinity display clear include add");  //Sec61b
 		run("Flatten");
 
 		filenamebinary=imname+"_MitoBinaryOverlay"+".tif";
@@ -124,15 +128,15 @@ macro "Mitochondria analysis [F5]" {
 		rename("MitoImageOnlyMito");
 		selectWindow("MitoImageOnlyMito");
 		
-		wait(500);
+		wait(200);
 		IJ.renameResults("ResultsMito");
-		wait(500);
+		wait(200);
 		updateResults();
 		run("Clear Results");
 		updateResults();
-		wait(500);
+		wait(200);
 
-		wait(500);
+		wait(200);
 		selectWindow("MitoImageOnlyMito");
 		filenamebinary=imname+"_OnlyMitoImage"+".tif";
 		saveAs("Tiff", savedir+filenamebinary);	
@@ -205,17 +209,17 @@ macro "Mitochondria analysis [F5]" {
 			
 		//Summarize all the parameters in a results table and save it
 
-		wait(500);
+		wait(200);
 		IJ.renameResults("Results","ResultsBranches");
-		wait(500);
+		wait(200);
 		selectWindow("ResultsBranches");
-		wait(500);
+		wait(200);
 		run("Close");
-		wait(500);
+		wait(200);
 		selectWindow("ResultsMito");
-		wait(500);
+		wait(200);
 		IJ.renameResults("ResultsMito","Results");
-		wait(500);
+		wait(200);
 
 		length1 = nResults();
 		
@@ -301,10 +305,11 @@ macro "Mitochondria analysis [F5]" {
 		run("Close");
 		run("Close");
 		print("Finished!");
-		wait(1000);
+		wait(200);
 		run("Close All");
 	}
 
 	run("Clear Results");
 	
+	setBatchMode(false);
 }

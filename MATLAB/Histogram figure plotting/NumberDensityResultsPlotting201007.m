@@ -3,7 +3,7 @@ midGray = [0.4 0.4 0.4];
 darkGray = [0.2 0.2 0.2];
 
 % Axon/dendrite split of all mdm (figure 1)
-%%{
+%{
 % Axon/dendrite split of all mdm (figure 1)
 ndens_sticks_ax = [0.85729472 0.99140157 0.87638194 4.55331937];
 ndens_mdvs_ax = [0.42864736 2.37936378 3.50552778 0];
@@ -317,7 +317,7 @@ disp(p)
 
 % Axon/dendrite, big/small, PEX+/-, gluc/aa (figure 5)
 % - plot in groups of condition
-%{
+%%{
 % Axon/dendrite, big/small, PEX+/-, gluc/aa (figure 5)
 % It is PEX data, even if it is called 'oxp' and 'oxn' below
 ndens_sticks_oxp_ax_gluc = [0.87638194 4.55331937];
@@ -410,7 +410,7 @@ b_bmdvs_oxp_de = bar(xplot12,mean_sticks_oxn_de,0.8);%,'FaceColor',darkGray);
 eb = errorbar(xplot,mean_all,std_all,std_all,'k','LineStyle','none');
 xlim([0.2 29.8])
 xticks([2.5 7.5 12.5 17.5 22.5 27.5])
-xticklabels({'Tiny MDVs, OXP+','Tiny MDVs, OXP-','Big MDVs, OXP+','Big MDVs, OXP-','Sticks, OXP+','Sticks, OXP-'})
+xticklabels({'Tiny MDVs, PEX+','Tiny MDVs, PEX-','Big MDVs, PEX+','Big MDVs, PEX-','Sticks, PEX+','Sticks, PEX-'})
 ylim([0 9])
 yticklabels({'0','','2','','4','','6','','8'})
 b.CData(1,:) = lightGray;

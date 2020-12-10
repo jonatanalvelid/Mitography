@@ -4,7 +4,9 @@
 // adjust this percentImageBackground number to ~the percent of the image
 // that is NOT covered with dendrite marker.
 // Normally, values around 0.7-0.9 is good.
-percentImageBackground = 0.3;
+percentImageBackground = 0.5;
+
+setForegroundColor(255, 255, 255);
 
 imnameor = getTitle();
 run("Duplicate...", "title=originalImage");
@@ -33,7 +35,10 @@ selectWindow("subsetmaskImage");
 run("Analyze Particles...", "size=0-200 pixel add"); 
 run("Select All");
 run("Clear");
+//roiManager("Combine");
 roiManager("fill");
+selectWindow("ROI Manager");
+run("Close");
 
 // do another round of thresholding and mask creation based on those 'tiny' objects you want to exclude
 setAutoThreshold("Default dark");
@@ -46,7 +51,6 @@ setAutoThreshold("Default dark");
 setAutoThreshold("Huang dark");
 run("Create Mask");
 
-
 for (i = 0; i < 2; i++) {
 	run("Erode");
 }
@@ -55,12 +59,34 @@ for (i = 0; i < 10; i++) {
 }
 run("Fill Holes");
 
-	
-filename = imnameor+"_NeuritesBinary"+".tif";
+
+// another round of removing background blobs
+// select all background blob-objects based on certain size
+midmask = getImageID();
+run("Duplicate...", "title=midsubsetmaskImage");
+selectWindow("midsubsetmaskImage");
+run("Analyze Particles...", "size=0-3000 pixel add"); 
+run("Select All");
+run("Clear");
+//roiManager("Combine");
+roiManager("fill");
+selectWindow("ROI Manager");
+run("Close");
+
+// do another round of thresholding and mask creation based on those 'tiny' objects you want to exclude
+setAutoThreshold("Default dark");
+run("Create Mask");
+midsubsetmask = getImageID();
+imageCalculator("Subtract create", midmask, midsubsetmask); // simply subtract the 'tiny' objects from the original mask
+
+filename = substring(imnameor,0,3)+"_neuritesbinary"+".tif";
 saveAs("Tiff", "E:\\PhD\\Data analysis\\Temp\\"+filename);
 run("Close");
 run("Close");
 run("Close");
 run("Close");
 run("Close");
-//run("Close");
+run("Close");
+run("Close");
+run("Close");
+run("Close");

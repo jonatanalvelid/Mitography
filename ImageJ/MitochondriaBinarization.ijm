@@ -38,11 +38,11 @@ if(tom20 == 1) {
 		run("Fill Holes");
 	}
 } else if(omp25 == 1) {
-	run("Gaussian Blur...", "sigma=0.03 scaled");
+	run("Gaussian Blur...", "sigma=0.04 scaled");
 	run("Duplicate...", "title=mitobinaryaltraw");
 	rename("mitobinaryalt2");
 	selectWindow("mitobinaryalt2");
-	setThreshold(3, 255);
+	setThreshold(2, 255);
 	run("Convert to Mask");
 	run("Make Binary");
 	run("Erode");
@@ -60,8 +60,8 @@ if(tom20 == 1) {
 		//localradius = 8;
 		//contrastthresh = 15;
 		// ATTEMPT FOR TMRE (normalized) - 7-15 works fine for: 1-24, (13 - very tricky, mitos with OMP-gradients), (17 - missing some small mitos, works with 6-15)
-		localradius = 7;
-		contrastthresh = 15;
+		localradius = 8;
+		contrastthresh = 3;
 		selectWindow("mitobinaryalt");
 		//Normalize masked original image.
 		run("Enhance Contrast...", "saturated=0 normalize");

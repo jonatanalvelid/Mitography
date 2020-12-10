@@ -20,7 +20,7 @@ fileList = dir(fullfile(masterFolderPath,'*_tmr.tif'));
 for i = 1:length(fileList)
     filenumbers(i) = str2num(fileList(i).name(1:3));
 end
-lastFileNumber = max(filenumbers);
+%lastFileNumber = max(filenumbers);
 
 threshsize = 8;  % Lower threshold size in pixels for binary mitochondria
 
@@ -35,9 +35,9 @@ filenameAxonDistInfo = '_axondistinfo.txt';
 
 filenameAnalysisSave = '_turnoveranalysis.txt';
 
-fileNumbers = 1:lastFileNumber;
+%fileNumbers = 1:lastFileNumber;
 
-for fileNum = fileNumbers
+for fileNum = filenumbers
     filepathpxs = strFilepath2(fileNum,filenameallPxs,masterFolderPath);
     filepathmito = strFilepath2(fileNum,filenameallMito,masterFolderPath);
     filepathMitoBinary = strFilepath2(fileNum,filenameMitoBinary,masterFolderPath);
@@ -118,12 +118,15 @@ for fileNum = fileNumbers
         datamito(:,params+2) = round(datamito(:,params+2),2);
         
         % Get total tmr and sir signal in each mito and save to mitoinfo
+        imj_circ_corr = 0.8;
         for i = 1:num
             singlemitobinary = ismember(labelmito, i);
+            mitocirc = regionprops(singlemitobinary,{'Circularity'});
             singlemitotmr = imagetmr(singlemitobinary);
             singlemitosir = imagesir(singlemitobinary);
-            datamito(i,params+3) = sum(singlemitotmr);
-            datamito(i,params+4) = sum(singlemitosir);
+            datamito(i,params+3) = sum(singlemitotmr);  % Total TMR signal
+            datamito(i,params+4) = sum(singlemitosir);  % Total SiR signal
+            datamito(i,params+5) = mitocirc.Circularity * imj_circ_corr;  % Mito circularity, with a correction factor to be similar to the ImageJ circularity
         end
 
         % Save data
