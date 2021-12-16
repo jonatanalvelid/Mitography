@@ -95,7 +95,7 @@ saveAs("Tiff", "E:\\PhD\\data_analysis\\Temp\\"+filename);
 run("Close");
 run("Close");
 run("Close");
-run("Close");
+//run("Close");
 //run("Close");
 //run("Close");
 //run("Close");

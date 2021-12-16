@@ -11,7 +11,7 @@ clear
 functionFolder = fileparts(which('findFunctionFolders.m'));
 addpath(genpath(functionFolder));
 
-masterFolderPath = strcat(uigetdir('E:\PhD\data_analysis\mice_NLGF_oxphos'),'\');
+masterFolderPath = strcat(uigetdir('E:\PhD\data_analysis\antimycin'),'\');
 filenameparam = 'ImageJAnalysisParameters.txt';
 filepathparam = strcat(masterFolderPath,filenameparam);   
 try
@@ -26,13 +26,15 @@ end
 areathresh_wEll = 0.1;
 mitosPerFile = 1000;
 
-lastFileNumber = 20;
+lastFileNumber = 50;
 
 %fileNumbers = 1:4;
 %fileNumbers = 5:7;
 %fileNumbers = 8:12;
 %fileNumbers = 13:16;
-fileNumbers = 17:20;
+%fileNumbers = 17:20;
+fileNumbersCells4 = [1 3;4 5;6 7;8 10;11 13;14 16;17 19;20 22;23 25;26 27;28 30;31 33;34 36;37 39;40 41];
+fileNumbersCells5 = [1 2;3 6;7 9;10 13;14 16;17 19;20 22;23 25;26 27;28 30;31 33;34 35;36 37;38 39;41 42;43 44;45 47;48 49];
 
 filenameAnalysis = '_MitoAnalysisFull.txt';
 
@@ -48,6 +50,9 @@ mitosoxvalFiles = zeros(mitosPerFile,2,lastFileNumber);
 ompvalFiles = zeros(mitosPerFile,2,lastFileNumber);
 somaParamFiles = zeros(mitosPerFile,2,lastFileNumber);
 borderParamFiles = zeros(mitosPerFile,2,lastFileNumber);
+
+cellno = 4;
+fileNumbers = 1:lastFileNumber;
 
 for fileNum = fileNumbers
     if fileNum < 10
@@ -182,6 +187,17 @@ for fileNum=fileNumbers
     end
 end
 %}
+
+figure()
+hold on
+%histogram(mitoArea(mitoArea<0.086),'BinWidth',0.01)
+histogram(mitoArea(mitoArea<0.086 & mitoOXPHOSparam==0),'FaceColor','b','BinWidth',0.01)
+histogram(mitoArea(mitoArea<0.086 & mitoOXPHOSparam==1),'FaceColor','r','BinWidth',0.01)
+title(masterFolderPath)
+legend({'OXPHOS-','OXPHOS+'})
+xlim([0 0.1])
+xlabel('Area (µm^2)')
+ylabel('Number of vesicles')
 
 clearvars -except mitoWidth mitoArea mitoLength mitoAR mitoOXPHOS mitoOMP mitoOXPHOSparam
 

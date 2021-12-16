@@ -13,7 +13,7 @@ clear
 % Add function folder to filepath, so that those functions can be read.
 functionFolder = fileparts(which('findFunctionFolders.m'));
 addpath(genpath(functionFolder));
-masterFolderPath = strcat(uigetdir('X:\Mitography\NEW\Turnover\I-Experiment-Rats\OMP25\DIV7-24h\Cell3\stitching\analysis'),'\');
+masterFolderPath = strcat(uigetdir('E:\PhD\data_analysis\temp_analysis_turnover\NLGC_mice_Turnover OMP25_TMR-SiR'),'\');
 fileList = dir(fullfile(masterFolderPath, '*turnoveranalysis.txt'));
 filenumbers = [];
 for i = 1:length(fileList)
@@ -83,7 +83,8 @@ areathhi = 0.2;
 circth = 0.8;
 %}
 %%{
-areathlo = 0.01;
+%areathlo = 0.01;
+areathlo = 0.2;
 areathhi = 100;
 circth = 0;
 %}

@@ -1,13 +1,11 @@
 %%%
 %
-% Mitography main code. Analyses all info and line profiles spitted out
-% from the ImageJ Mitography script, and gives the info per mitochonrdia
-% out.
+% Mitography - OXPHOS (AA/control)
 %
 %----------------------------
 %
-% Version: 200513
-% Handle only mito morphology and MitoSOX/OMP signal. 
+% Version: 201203
+% Handle only basic mito morphology and OXPHOS/OMP signal. 
 %
 %%%
 
@@ -17,7 +15,7 @@ clear
 functionFolder = fileparts(which('findFunctionFolders.m'));
 addpath(genpath(functionFolder));
 
-masterFolderPath = strcat(uigetdir('E:\PhD\data_analysis\temp_oxphos\exp1-Glucose_DIV8_280420_OXPHOS_MAP_OMP25\matlab_analysis'),'\');
+masterFolderPath = strcat(uigetdir('E:\PhD\data_analysis\antimycin'),'\');
 filenameparam = 'ImageJAnalysisParameters.txt';
 filepathparam = strcat(masterFolderPath,filenameparam);
 
@@ -28,11 +26,6 @@ mitoDoubleGaussTol = 0.92;
 mitoDoubleGaussTol2 = 0.7;
 gaussianFitting = 1;
 
-filenameall = '_MitoLineProfiles.txt';
-filenameupper = '_MitoUpperLineProfiles.txt';
-filenamebottom = '_MitoBottomLineProfiles.txt';
-filenameallPxs = '_PixelSizes.txt';
-filenameallMito = '_MitoAnalysis.txt';
 imgNumbers = 1:lastFileNumber;
 
 %% 
@@ -40,10 +33,13 @@ imgNumbers = 1:lastFileNumber;
 
 filenameAnalysis = '_MitoAnalysis.txt';
 filenameAnalysisSave = '_MitoAnalysisFull.txt';
-filenameMitoBinary = '_MitoBinary.tif';
-filenameSomaBinary = '-SomaBinary.tif';
-filenameMitoSOX = '-OXPHOS.tif';
-filenameMito = '-Mitochondria.tif';
+filenameMitoBinary = '-mitobinary.tif';
+filenameSomaBinary = '-somabinary.tif';
+filenameNeuritesBinary = '-neuritesbinary.tif';
+filenameOxphosBinary = '-oxphosbinary.tif';
+filenameOxphos = '-oxphos.tif';
+filenameMito = '-mitochondria.tif';
+filenameallPxs = '_PixelSizes.txt';
 
 filenamecellnum = 'cellnumber.txt';
 filenameoxphosthresh = 'oxphos-thresh.txt';
@@ -52,15 +48,19 @@ filepathoxphosthresh = strcat(masterFolderPath,filenameoxphosthresh);
 cellnums = load(filepathcellnum);
 oxphos_threshs = dlmread(filepathoxphosthresh,'\t',1,0);
 
+tukeys = nan(lastFileNumber,1);
+
 fileNum = 1;
 for imgNum = imgNumbers
     filepathAnaSave = strFilepath(imgNum,filenameAnalysisSave,masterFolderPath);
     filepathAna = strFilepath(imgNum,filenameAnalysis,masterFolderPath);
     filepathpxs = strFilepath(imgNum,filenameallPxs,masterFolderPath);
-    filepathMitoSOX = strFilepath(imgNum,filenameMitoSOX,masterFolderPath);
+    filepathOxphos = strFilepath(imgNum,filenameOxphos,masterFolderPath);
     filepathMito = strFilepath(imgNum,filenameMito,masterFolderPath);
     filepathMitoBinary = strFilepath(imgNum,filenameMitoBinary,masterFolderPath);
     filepathSomaBinary = strFilepath(imgNum,filenameSomaBinary,masterFolderPath);
+    filepathNeuritesBinary = strFilepath(imgNum,filenameNeuritesBinary,masterFolderPath);
+    filepathOxphosBinary = strFilepath(imgNum,filenameOxphosBinary,masterFolderPath);
  
     try
         try
@@ -87,16 +87,24 @@ for imgNum = imgNumbers
             imagesomabinary = logical(imagesomabinary);
         end
         try
-            imagebkgbinary = imread(filepathBkgBinary);
-            imagebkgbinary = logical(imagebkgbinary);
+            imageneuritesbinary = imread(filepathNeuritesBinary);
+            imageneuritesbinary = logical(imageneuritesbinary);
         catch err
-            imagebkgbinary = zeros(size(imagemitobinary));
-            imagebkgbinary = logical(imagebkgbinary);
+            imageneuritesbinary = zeros(size(imagemitobinary));
+            imageneuritesbinary = logical(imageneuritesbinary);
         end
         try
-            imagemitosox = imread(filepathMitoSOX);
+            imageoxphosbinary = imread(filepathOxphosBinary);
+            imageoxphosbinary = logical(imageoxphosbinary);
         catch err
-            imagemitosox = zeros(size(imagemitobinary));
+            imageoxphosbinary = zeros(size(imagemitobinary));
+            imageoxphosbinary = logical(imageoxphosbinary);
+        end
+
+        try
+            imageoxphos = imread(filepathOxphos);
+        catch err
+            imageoxphos = zeros(size(imagemitobinary));
         end
         try
             imageomp = imread(filepathMito);
@@ -148,12 +156,12 @@ for imgNum = imgNumbers
                 % get binary img of single mitochondria
                 singlemitobinary = ismember(labelmito, i);
                 % get a list of mitosox and omp pixels in this area
-                mitosoxsignal = imagemitosox(singlemitobinary);
+                oxphossignal = imageoxphos(singlemitobinary);
                 ompsignal = imageomp(singlemitobinary);
                 % get average MitoSOX and OMP signal/pixel per mito
-                mitosoxsignalavg = mean(mitosoxsignal);
+                oxphossignalavg = mean(oxphossignal);
                 ompsignalavg = mean(ompsignal);
-                dataAnalysis(i,111) = mitosoxsignalavg;  % OXPHOS SIGNAL
+                dataAnalysis(i,111) = oxphossignalavg;  % OXPHOS SIGNAL
                 dataAnalysis(i,115) = ompsignalavg;  % OMP25 SIGNAL
             end
 
@@ -166,14 +174,28 @@ for imgNum = imgNumbers
             % save boolean variable for which mito has mitosox signal above
             % thresh (signal) and which are below (no signal)
             for i=1:sizeData(1)
-                mitosoxsignal = dataAnalysis(i,111);
-                if mitosoxsignal > threshsignal
+                oxphossignal = dataAnalysis(i,111);
+                if oxphossignal > threshsignal
                     dataAnalysis(i,112) = 1;  % OXPHOS PARAM
                 else
                     dataAnalysis(i,112) = 0;
                 end
             end
         end
+        
+        % CALCULATE TUKEY THRESHOLD FOR AREA INSIDE NEURITES BUT OUTSIDE
+        % MITOCHONDRIA AND OUTSIDE BINARY OXPHOS IMAGE THAT TAKES MOST
+        % LARGE AREAS OF OXPHOS THAT ARE NOT INSIDE NON-OMP-LABELLED
+        % MITOCHONDRIA
+        bkginsideMask = imageneuritesbinary & ~imagemitobinary & ~imageoxphosbinary;
+        bkg = imageoxphos(bkginsideMask);
+        meanoxpbkg = mean(bkg);
+        tukeycr = meanoxpbkg*log(4) + 1.5*meanoxpbkg*log(3);
+        tukeys(imgNum) = tukeycr;
+        %disp('Tukey criteria - img no')
+        %disp(imgNum)
+        %disp(tukeycr)
+        
 
         disp(strcat(num2str(imgNum),': Data handling done.'))
         dlmwrite(filepathAnaSave,dataAnalysis,'delimiter','\t');

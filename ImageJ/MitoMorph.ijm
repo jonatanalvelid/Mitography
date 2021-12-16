@@ -142,9 +142,9 @@ for(r=0;r<filelist.length/noImages;r++) {
 	print("Saved mitochondria image with only mitochondria...");
 
 	selectWindow("mitobinary4");
-	filenamebinarytrue=imname+"_MitoBinary"+".tif";
-	saveAs("Tiff", savedir+filenamebinarytrue);	
-	print("Saved binary mitochondria image...");
+	//filenamebinarytrue=imname+"_MitoBinary"+".tif";
+	//saveAs("Tiff", savedir+filenamebinarytrue);	
+	//print("Saved binary mitochondria image...");
 
 	//Skeletonize the binary image and get the length of the mitochondria from the skeleton
 
@@ -298,6 +298,7 @@ for(r=0;r<filelist.length/noImages;r++) {
 	filenametxt=imname+"_PixelSizes"+".txt";
 	saveAs("results", savedir+filenametxt);
 
+	run("Close");
 	run("Close");
 	run("Close");
 	run("Close");

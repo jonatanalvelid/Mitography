@@ -24,12 +24,12 @@ for(r=0;r<filelist.length;r++) {
 		print(filelist[r]);
 		filepath = filenamebase+filelist[r];
 		print(filepath);
-		filename_split = split(filelist[r],'-');
+		filename_split = split(filelist[r],'_');
 		filesavenum = filename_split[1];
 		filesavenum = split(filesavenum,'.');
 		filesavenum = filesavenum[0];
 		filenameprefix = filename_split[0];
 		filenameprefix = toString(filenameprefix);
-		saveimages(filepath, savedir, ""+filesavenum, "mitochondria");
+		saveimages(filepath, savedir, ""+filesavenum, "oxphos");
 	}
 }

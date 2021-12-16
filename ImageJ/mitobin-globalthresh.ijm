@@ -7,8 +7,9 @@ noImages = 1;
 allmito = 1;  //for counting all mito, or deleting the smallest and big ones for example, to get less noise
 localthreshold = 1;  //try local thresholding, Bernsen variant. Seems to work nicely on well-labelled OMP25 images.
 localthresholdmethod = "Bernsen";  //local thresholding method to use.
-thresh1 = 10;
+thresh1 = 37;
 thresh2 = thresh1-5;
+smoothsize = 0.03;
 
 getPixelSize(unit, pixelWidth, pixelHeight);
 getDimensions(width, height, channels, slices, frames);
@@ -33,7 +34,7 @@ selectWindow("mitobinaryaltraw");
 run("Duplicate...", "title=mitobinaryaltraw");
 rename("mitobinaryalt2");
 selectWindow("mitobinaryalt2");
-run("Gaussian Blur...", "sigma=0.05 scaled");
+run("Gaussian Blur...", "sigma="+smoothsize+" scaled");
 selectWindow("mitobinaryaltraw");
 setThreshold(thresh1, 255);
 run("Convert to Mask");

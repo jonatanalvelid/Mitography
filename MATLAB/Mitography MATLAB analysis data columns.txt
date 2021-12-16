@@ -109,5 +109,5 @@ X 103 Mito-actin distance 2 (D_2) - only positive values, do not throw away acti
 108 Axon/not-axon parameter (1=axon) (IF SEPARATE ANALYSIS HAS BEEN RUN)
 109 Soma/not-soma parameter (1=soma) (from v191112)
 110 Mitochondria touching border boolean variable (1=touching border)
-111 Mean TMRE/MitoSOX signal inside mitochondria
-112 Membrane potential boolean variable - TMRE/MitoSOX+ (1) / TMRE/MitoSOX- (0) 
+111 Mean TMRE/MitoSOX/OXPHOS signal inside mitochondria
+112 Membrane potential boolean variable - TMRE/MitoSOX/OXPHOS+ (1) / TMRE/MitoSOX/OXPHOS- (0) 
