@@ -4,9 +4,10 @@
 % Boxplot and scatter mitoSOX intensity vs <250/>250 nm mitochondria. 
 % @Jonatan Alvelid
 % Created: 2019-11-01
+% Modified: 2022-04-26
 %%%%%
-
-datafolderpath = 'X:\RedSTED\Data\Imspector\Giovanna\20190930_live_mitoSOX\';
+addpath('C:\Users\jonatan.alvelid\Documents\GitHub\Mitography\MATLAB\functions');
+datafolderpath = 'T:\RedSTED\Data\Imspector\Giovanna\20190930_live_mitoSOX\';
 meanmitosoxsmall = zeros(4,1);
 meanmitosoxbig = zeros(4,1);
 for i=1:4
