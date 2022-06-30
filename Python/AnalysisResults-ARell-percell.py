@@ -1,14 +1,11 @@
 import os
-import csv
-import cv2 as cv
 import glob
-import tifffile
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from tkinter.filedialog import askdirectory
 
-dirpath = askdirectory(title='Choose your folder...',initialdir='X:/Mitography/NEW/Antimycin Treatments_April2020/6h_5nM AA')  # directory path
+dirpath = askdirectory(title='Choose your folder...',initialdir='T:/Mitography/NEW/Antimycin Treatments_April2020/Experiment 1_6h_5nM AA/Glucose_DIV8_280420_combined')  # directory path
 files_neurlen = glob.glob(os.path.join(dirpath,'Image_*NeuritesLength.txt'))
 files_mitointe = glob.glob(os.path.join(dirpath,'Image_*MitoOfInterest.csv'))
 cellnumber = np.loadtxt(os.path.join(dirpath,'cellnumber.txt'),delimiter=',').astype(int)
@@ -69,6 +66,18 @@ neurlen_all = np.array(neurlen_all)
 nummito_all = np.array(nummito_all)
 
 print(neurlen_all)
+print('')
+print(nummito_all)
+print('')
+print(np.shape(nummito_all))
+print(np.sum(np.sum(nummito_all[:,:,:,0:2])))  # number of mdms, all comp
+print(np.sum(np.sum(nummito_all[:,0,:,0:2])))  # number of sticks, all comp
+print(np.sum(np.sum(nummito_all[:,1,:,0:2])))  # number of mdvs, all comp
+print(np.sum(np.sum(nummito_all[:,0,:,0])))  # number of sticks, axons
+print(np.sum(np.sum(nummito_all[:,1,:,0])))  # number of mdvs, axons
+print(np.sum(np.sum(nummito_all[:,0,:,1])))  # number of sticks, dendrites
+print(np.sum(np.sum(nummito_all[:,1,:,1])))  # number of mdvs, dendrites
+print('')
 
 # not per cell, big/small separation
 mitodensity_together = [[[[] for i in range(4)] for i in range(2)] for i in range(2)]

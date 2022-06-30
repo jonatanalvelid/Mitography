@@ -6,16 +6,16 @@
 # @jonatanalvelid
 
 import os
-import csv
-import cv2 as cv
+#import csv
+#import cv2 as cv
 import glob
-import tifffile
+#import tifffile
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from tkinter.filedialog import askdirectory
 
-dirpath = askdirectory(title='Choose your folder...',initialdir='E:/PhD/data_analysis/antimycin')  # directory path
+dirpath = askdirectory(title='Choose your folder...',initialdir='C:/Users/jonatan.alvelid/Documents/GitHub/mitography-public/example-data/number-density/number-density-analysis')  # directory path
 files_mitoana = glob.glob(os.path.join(dirpath,'Image_0*MitoAnalysisFull.txt'))
 
 cellnumber = np.loadtxt(os.path.join(dirpath,'cellnumber-all.txt'),delimiter=',').astype(int)
